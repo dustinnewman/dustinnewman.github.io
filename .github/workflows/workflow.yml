@@ -1,0 +1,21 @@
+name: Hugo Publish
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: crazy-max/ghaction-hugo@v1
+
+      - uses: crazy-max/ghaction-github-pages@v2
+        with:
+          build_dir: public
+          target_branch: master
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}

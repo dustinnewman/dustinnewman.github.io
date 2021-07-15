@@ -1,0 +1,19 @@
+baseURL = "https://uncomputation.dev"
+languageCode = "en-us"
+title = "Uncomputation"
+theme = "paper"
+
+[[menu.main]]
+name = "Posts"
+url = "/posts"
+
+[[menu.main]]
+name = "Projects"
+url = "/projects"
+
+[[menu.main]]
+name = "Recipes"
+url = "/recipes"
+
+[markup.highlight]
+style = "monokai"

@@ -1,0 +1,26 @@
+{{- partial "header.html" . }}
+
+<article class="post-single">
+  <header class="post-header">
+    <h1 class="post-title">{{ .Title }}</h1>
+    <h2 class="post-subtitle">{{ .Params.Subtitle }}</h2>
+    <div class="post-meta">
+      {{- if or .Params.Author .Site.Author.name }}
+      {{- .Params.Author | default .Site.Author.name }} · {{ end }}
+      {{- .Date.Format "January 2, 2006" -}}
+    </div>
+  </header>
+  <div class="post-content">{{ .Content }}</div>
+  {{- if .Params.tags }}
+  <footer class="post-footer">
+    <ul class="post-tags">
+      {{- range .Params.tags }}
+      {{- $href := print (absURL "tags/") (urlize .) }}
+      <li><a href="{{ $href }}">{{ . }}</a></li>
+      {{- end }}
+    </ul>
+  </footer>
+  {{- end }}
+</article>
+
+{{- partial "footer.html" . }}
