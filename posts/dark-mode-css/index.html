@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <title>How to use CSS with native dark mode - Uncomputation</title>
+    
+    <meta name="description" content="With iOS 13, I have been enjoying not just the beautiful new dark mode, but the automatic transition after sunset. It&rsquo;s easier on my eyes and keeps me conscious of using technology too much before bed. That said, the native dark mode is only for native apps. Or is it?
+I thought it would be nice if there were CSS selectors capable of targeting users&#39; native preferences on the matter and luckily Apple did not disappoint.">
+    <meta name="author" content="">
+    
+    <link href="https://uncomputation.dev/style.css" rel="stylesheet">
+    
+    <link rel="apple-touch-icon" href="https://uncomputation.dev/apple-touch-icon.png">
+    <link rel="icon" href="https://uncomputation.dev/favicon.ico">
+    <meta name="generator" content="Hugo 0.85.0" />
+    
+    </head>
+  <body class="single">
+    <header class="header">
+      <nav class="nav">
+        <p class="logo"><a href="https://uncomputation.dev">Uncomputation</a></p>
+        <ul class="menu">
+          <li>
+            <a href="/posts">Posts</a>
+          </li>
+          <li>
+            <a href="/projects">Projects</a>
+          </li>
+          <li>
+            <a href="/recipes">Recipes</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <main class="main">
+
+
+<article class="post-single">
+  <header class="post-header">
+    <h1 class="post-title">How to use CSS with native dark mode</h1>
+    <h2 class="post-subtitle">Let there be... dark</h2>
+    <div class="post-meta">December 16, 2019</div>
+  </header>
+  <div class="post-content"><p>With iOS 13, I have been enjoying not just the beautiful new dark mode, but the automatic transition after sunset. It&rsquo;s easier on my eyes and keeps me conscious of using technology too much before bed. That said, the native dark mode is only for native apps. Or is it?</p>
+<p>I thought it would be nice if there were CSS selectors capable of targeting users' native preferences on the matter and luckily Apple did not disappoint. In <a href="https://webkit.org/blog/8840/dark-mode-support-in-webkit/">this tutorial post</a> from the WebKit blog, they introduce the <code>color-scheme</code> CSS property, which supports both <code>light</code> and <code>dark</code> values. I was drawn to this solution over the DIY option (which usually involves some sort of moon icon) because it offers:</p>
+<ol>
+<li>Less UI complexity</li>
+<li>More seamless integration with the user&rsquo;s system</li>
+<li>Less JavaScript logic required</li>
+</ol>
+<p>All wins in my book, so let&rsquo;s get started! (For this blog, I use SCSS, but I only use the SCSS variables for media queries and the rest of this tutorial uses regular CSS variables.)</p>
+<p>Add this snippet to your top-most styling file (for me, it was my <code>main.scss</code>):</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-css" data-lang="css">:<span style="color:#a6e22e">root</span> {
+  color-scheme: light dark;
+}
+</code></pre></div><p>This tells the browser that your site supports both <code>light</code> and <code>dark</code> themes. By itself, however, it&rsquo;s not super useful, so let&rsquo;s define some variables that we can switch depending on the theme.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-css" data-lang="css">:<span style="color:#a6e22e">root</span> {
+  color-scheme: light dark;
+  --bg-color: <span style="color:#ae81ff">#fcfcff</span>;
+  --text-color: <span style="color:#ae81ff">#000000</span>;
+}
+</code></pre></div><p>Here, we use an off-white as the background color and pure black as the text color. I strongly recommend using functional names rather than descriptive (i.e. <code>bg-color</code> instead of <code>off-white</code>) because it allows us to use the same variable declarations with only one media query, rather than using a media query each time we want to use either <code>off-white</code> or the dark-theme counterpart.</p>
+<p>Now the magic!</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-css" data-lang="css">@<span style="color:#66d9ef">media</span> <span style="color:#f92672">(</span><span style="color:#f92672">prefers-color-scheme</span><span style="color:#f92672">:</span> <span style="color:#f92672">dark</span><span style="color:#f92672">)</span> {
+  :<span style="color:#a6e22e">root</span> {
+    --bg-color: <span style="color:#ae81ff">#121212</span>;
+    --text-color: <span style="color:#ae81ff">#fcfcfc</span>;
+  }
+}
+</code></pre></div><p>With one media query, we re-define our variables so that the <em>text</em> is now off-white and the background is off-black. To apply this, let&rsquo;s use our main <code>body</code> element as an example.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-css" data-lang="css"><span style="color:#f92672">body</span> {
+  <span style="color:#66d9ef">background-color</span>: <span style="color:#a6e22e">var</span>(<span style="color:#f92672">--</span>bg<span style="color:#f92672">-</span><span style="color:#66d9ef">color</span>);
+  <span style="color:#66d9ef">color</span>: <span style="color:#a6e22e">var</span>(<span style="color:#f92672">--</span><span style="color:#66d9ef">text</span><span style="color:#f92672">-</span><span style="color:#66d9ef">color</span>);
+}
+</code></pre></div><p>Now our <code>body</code> will use the <code>bg-color</code> variable which, if the user prefers dark mode, will be an off-black! Nice! I hope this mini-tutorial was helpful and that you see the advantages of this way over rolling your own moon icon; although I&rsquo;ll admit that might be a bit more fun.</p>
+</div>
+</article></main>
+<footer class="footer">
+  <span>&copy; 2021 <a href="https://uncomputation.dev">Uncomputation</a></span>
+  <span>&middot;</span>
+  <span>Powered by <a href="https://gohugo.io/" rel="noopener" target="_blank">Hugo️️</a>️</span>
+  <span>&middot;</span>
+  <span>Theme️ <a href="https://github.com/nanxiaobei/hugo-paper" rel="noopener" target="_blank">Paper</a></span>
+</footer>
+</body>
+</html>
+

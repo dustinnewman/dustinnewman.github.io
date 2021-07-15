@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <title>Real CS Curriculum - Uncomputation</title>
+    
+    <meta name="description" content="As I’m approaching my first full year in industry after school, I’ve noticed the divide between what’s taught in class versus what you use day-to-day more than ever. Now don’t take this the wrong way. I’m certainly not advocating higher education becomes a bootcamp or saying the theoretical doesn’t matter. It very much does and, even though it’s become a meme to poke fun at whiteboarding interviews or algorithm questions, I still definitely believe those are essential to any long-term career in engineering/programming.">
+    <meta name="author" content="">
+    
+    <link href="https://uncomputation.dev/style.css" rel="stylesheet">
+    
+    <link rel="apple-touch-icon" href="https://uncomputation.dev/apple-touch-icon.png">
+    <link rel="icon" href="https://uncomputation.dev/favicon.ico">
+    <meta name="generator" content="Hugo 0.85.0" />
+    
+    </head>
+  <body class="single">
+    <header class="header">
+      <nav class="nav">
+        <p class="logo"><a href="https://uncomputation.dev">Uncomputation</a></p>
+        <ul class="menu">
+          <li>
+            <a href="/posts">Posts</a>
+          </li>
+          <li>
+            <a href="/projects">Projects</a>
+          </li>
+          <li>
+            <a href="/recipes">Recipes</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <main class="main">
+
+
+<article class="post-single">
+  <header class="post-header">
+    <h1 class="post-title">Real CS Curriculum</h1>
+    <h2 class="post-subtitle">From Turing to terminal</h2>
+    <div class="post-meta">April 24, 2021</div>
+  </header>
+  <div class="post-content"><p>As I’m approaching my first full year in industry after school, I’ve noticed the divide between what’s taught in class versus what you use day-to-day more than ever. Now don’t take this the wrong way. I’m certainly not advocating higher education becomes a bootcamp or saying the theoretical doesn’t matter. It very much does and, even though it’s become a meme to poke fun at whiteboarding interviews or algorithm questions, I still definitely believe those are essential to any long-term career in engineering/programming. That said, there are a few things I wish I would have spent more time on outside of the basic introduction I got from class. Let’s start with numero uno.</p>
+<h2 id="git">Git</h2>
+<p>Everyone knows checkout, push, and commit, but knowing how to rebase, cherry pick, amend, and work with large numbers of incoming, conflicting changes is absolutely vital to day-to-day work. I remember when I first learned about Git and version control in general; I was confused, why wouldn’t you just email the version you want to yourself for safe-keeping? Maybe keep <code>_version_1_backup</code> in another directory? I carried basically that same approach to version control even after I first learned Git. I used it mostly for personal projects, or projects where I personally knew everybody pushing each and every change. However, in the “real world,” you’ll need to rebase on top of seven or eight different changes coming in across timezones from people you have never met and never will. Admittedly, it is hard to get this experience until it’s too late, but I recommend getting comfortable with the more “advanced” features of Git before you have to.</p>
+<h2 id="vim">vim</h2>
+<p>I remember the jokes in college about “vim vs emacs,” and they all mostly devolved into just that: jokes. However, the first time I received an actual technical argument in favor of vim, it swayed me away forever. (It was that vim is basically available on any device, including embedded, whereas emacs is not.) I’m glad it did because working with vim is a powerful tool in any developer’s skillset. It definitely takes time to learn coming from a typical text editor. I actually would describe vim as the <em>true</em> text editor rather than a text GUI, which is what most editors feel like after getting used to vim. Vim offers advanced ways of operating over text; a powerful, yet simple, command set; a vibrant, helpful community; and a huge ecosystem of plugins and documentation. Searching and navigating large code bases takes a couple seconds with cscope and ctags compared to larger memory hogs like VS Code which somehow still manage to take longer (I guess all that memory is going to Chromium). Vim is one of the tried and true relics of the tech world that I feel deserves its throne and place in computing history.</p>
+<h2 id="debugging">Debugging</h2>
+<p>This one is a little more vague than the others, but that’s exactly the point. Debugging is something you’ll do everyday at work and which takes many different forms. You might need a custom GUI, the Xcode debugger, or good old GDB, but you should get familiar with, at the very least, the process of debugging. Knowing how to spot potential problem areas ahead of time, use core dumps to narrow down the issue, and test your hypothesis for a fix will save you valuable time on the job. One of my personal tips is to stop being afraid of errors, warnings, and stack traces. It’s a common beginner thing to just want the code “to work,” but errors are always a part of the process. And that’s a good thing. Errors help ferret out weak areas in the code or unchecked assumptions. This makes for more robust programs in the long term. Having errors at all is actually a blessing, as you’ll discover once you start having to report your own errors. The worst issue to debug is one with no errors.</p>
+<h2 id="reading-code">Reading code</h2>
+<p>I’ve tried to find attribution for the quote “code is read more often than it is written” and cannot find a definitive answer. But it’s true all the same. You will read other people’s code every day, most of the day. Eventually you will get so familiar with it, it will start to almost feel like your own. It ceases to be “code” and starts to be “the code.” In school, we are often taught how to <em>write</em> code for ourselves and only read others’ on tests to find a bug. But in the real world, it’s not often someone is going to hand you the golden scepter and declare “You! You alone get to organize, architect, write, and style the code forever!” Unless you’re joining a startup (and even then), there are going to be existing style guides, banned functions, and old libraries you must acquaint yourself with. It may go against everything you believe in. You might rather die than put function brackets on a new line, but die you must, or at least your preferred ways of doing things. In a team environment, what matters more than any objective attempt at “the best style” is that everyone is on the same page and that there are answers to common questions (e.g. common libraries).</p>
+<p>More than just a style thing though, reading other people’s code is about putting yourself in their shoes, understanding why they chose to do things one way over another (besides “they’re wrong and I’m right”), and working with it to fix bugs, add features, or extend functionality. To do this, you have to stop looking at “old code” as a negative and instead see it as “experienced code”: code that has weathered the test of time, that has been reviewed and tested many more times over than any new code (no matter how good it seems at first), that has grown to support or remove pathways not originally foreseen. Avoid “shiny object syndrome” at all costs.</p>
+<p>College is an essential foundation for a computer science education. It gives you the theoretical and historical context for a lot of what we’re stuck dealing with now. It encourages a deeper understanding of programming fundamentals, of being able to truly look not only inside the computer, but beyond it: what is really being expressed beyond all those circuits, zeroes, and memory chips. However, coming into industry - which is very much focused on delivering - can be an entirely new world. All of a sudden it’s dictated what editor you use, where you put your braces, and the style of your commit messages. You’re dealing with fifteen merge conflicts from different countries trying to push a one-line change for an issue you did not report. College doesn’t prepare you for that, or at least it didn’t for me. Whether it should is an entirely different conversation, but for now there are a few things you can do that will ease your transition considerably. And you better learn to love them, because they’re not going anywhere!</p>
+</div>
+</article></main>
+<footer class="footer">
+  <span>&copy; 2021 <a href="https://uncomputation.dev">Uncomputation</a></span>
+  <span>&middot;</span>
+  <span>Powered by <a href="https://gohugo.io/" rel="noopener" target="_blank">Hugo️️</a>️</span>
+  <span>&middot;</span>
+  <span>Theme️ <a href="https://github.com/nanxiaobei/hugo-paper" rel="noopener" target="_blank">Paper</a></span>
+</footer>
+</body>
+</html>
+

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <title>Buzz - Uncomputation</title>
+    
+    <meta name="description" content="This was the first Daily Bruin project I created entirely on my own. It was common to come into the office with blue papers (design notes) strewn about every which way on all sorts of tables, filled with mark ups and notes. Aside from being a huge paper waster, design notes were also inefficient and required editors to physically be in the office to complete them. While this wasn&rsquo;t a problem during the school year, over the summer, designers had to hunt down editors through Slack to get the necessary information for that day&rsquo;s paper.">
+    <meta name="author" content="">
+    
+    <link href="https://uncomputation.dev/style.css" rel="stylesheet">
+    
+    <link rel="apple-touch-icon" href="https://uncomputation.dev/apple-touch-icon.png">
+    <link rel="icon" href="https://uncomputation.dev/favicon.ico">
+    <meta name="generator" content="Hugo 0.85.0" />
+    
+    </head>
+  <body class="single">
+    <header class="header">
+      <nav class="nav">
+        <p class="logo"><a href="https://uncomputation.dev">Uncomputation</a></p>
+        <ul class="menu">
+          <li>
+            <a href="/posts">Posts</a>
+          </li>
+          <li>
+            <a href="/projects">Projects</a>
+          </li>
+          <li>
+            <a href="/recipes">Recipes</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <main class="main">
+
+
+<article class="post-single">
+  <header class="post-header">
+    <h1 class="post-title">Buzz</h1>
+    <h2 class="post-subtitle">Daily production base for Daily Bruin</h2>
+    <div class="post-meta">May 23, 2019</div>
+  </header>
+  <div class="post-content"><p>This was the first Daily Bruin project I created entirely on my own. It was common to come into the office with blue papers (design notes) strewn about every which way on all sorts of tables, filled with mark ups and notes. Aside from being a huge paper waster, design notes were also inefficient and required editors to physically be in the office to complete them. While this wasn&rsquo;t a problem during the school year, over the summer, designers had to hunt down editors through Slack to get the necessary information for that day&rsquo;s paper. Thus, enter Buzz.</p>
+<p>Buzz was started and finished within the span of about a week, most of that time being spent debugging the Slack OAuth API. Technically, Buzz is a simple MERN app, with a heavy focus on the &ldquo;R&rdquo;. Designing any one specific schema for a newspaper is notoriously challenging, as unstructured data is essentially the norm. For example, one of my - in my opinion - most reasonable assumptions for Buzz was that &ldquo;word count&rdquo; would be a number. Duh right?</p>
+<p>Not duh. Within the very day Buzz was deployed, I got an error about something not being a number. You see, someone had entered &ldquo;500~600&rdquo; for the word count for a particular story. In hindsight, this was completely obvious: of course editors do not know exact word counts for stories in advance. Often, they have a reasonable range and to represent a range, you have to be a little more lenient than just numbers.</p>
+<p>But Buzz&rsquo;s flexibility extends far further. I made the decision fairly early on that the backend would be nothing more than a data store and message handler for the frontend. The frontend dictates the &ldquo;schema&rdquo; or structure of data saved. The backend itself just saves whatever the frontend passes to it. This way, if a section - say, Opinion - wants to add a completely new part of the paper, <em>no change needs to be made on the backend at all!</em> All it takes is changing the hard-coded form on the frontend and everything saves without problem.</p>
+<p>Some of course may object to the lack of data integrity, especially in the long term. Well, the long term part is &ldquo;solved&rdquo; since Buzz deletes all data (except member lists) every 14 days. This is a domain-specific optimization that arose from using a free instance of a MongoLab database, as well as the fact that design notes are extremely ephemeral. Integrity in general is absolutely mandatory for more generic programs and indeed should be the default wherever possible. However, so far Buzz has faced - by far - the fewest bugs and the smallest downtime of any other internal tool at the Bruin.</p>
+<p>While Buzz is certaintly not any engineering marvel, it was a good example for me personally to see the effects that problem domain have on software design. As the oft-hated, overquoted maxim goes &ldquo;choose the right tool for the right job.&rdquo;</p>
+</div>
+</article></main>
+<footer class="footer">
+  <span>&copy; 2021 <a href="https://uncomputation.dev">Uncomputation</a></span>
+  <span>&middot;</span>
+  <span>Powered by <a href="https://gohugo.io/" rel="noopener" target="_blank">Hugo️️</a>️</span>
+  <span>&middot;</span>
+  <span>Theme️ <a href="https://github.com/nanxiaobei/hugo-paper" rel="noopener" target="_blank">Paper</a></span>
+</footer>
+</body>
+</html>
+

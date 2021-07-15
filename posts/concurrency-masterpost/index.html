@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <title>Concurrency Masterpost - Uncomputation</title>
+    
+    <meta name="description" content="Concurrency is at the heart of network programming. Most of networking is presumably I/O bound and as such it&rsquo;s very easy to waste precious CPU cycles simply waiting for responses. To solve this, we structure our programs to be concurrent, dividing a problem into independent sections such that each concurrent unit may execute the sections in any order. Different concurrency and concurrency control mechanisms have been proposed in the past 60 years and I thought it would be helpful to have a reference point comparing them all.">
+    <meta name="author" content="">
+    
+    <link href="https://uncomputation.dev/style.css" rel="stylesheet">
+    
+    <link rel="apple-touch-icon" href="https://uncomputation.dev/apple-touch-icon.png">
+    <link rel="icon" href="https://uncomputation.dev/favicon.ico">
+    <meta name="generator" content="Hugo 0.85.0" />
+    
+    </head>
+  <body class="single">
+    <header class="header">
+      <nav class="nav">
+        <p class="logo"><a href="https://uncomputation.dev">Uncomputation</a></p>
+        <ul class="menu">
+          <li>
+            <a href="/posts">Posts</a>
+          </li>
+          <li>
+            <a href="/projects">Projects</a>
+          </li>
+          <li>
+            <a href="/recipes">Recipes</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <main class="main">
+
+
+<article class="post-single">
+  <header class="post-header">
+    <h1 class="post-title">Concurrency Masterpost</h1>
+    <h2 class="post-subtitle">Threads and locks and actors, oh my!</h2>
+    <div class="post-meta">January 10, 2020</div>
+  </header>
+  <div class="post-content"><p>Concurrency is at the heart of network programming. Most of networking is presumably I/O bound and as such it&rsquo;s very easy to waste precious CPU cycles simply waiting for responses. To solve this, we structure our programs to be <strong>concurrent</strong>, dividing a problem into independent sections such that each concurrent unit may execute the sections in any order. Different concurrency and concurrency control mechanisms have been proposed in the past 60 years and I thought it would be helpful to have a reference point comparing them all. This post will be broken up into two primary sections: &ldquo;concurrency&rdquo; and &ldquo;concurrency control.&rdquo;</p>
+<h2 id="concurrency">Concurrency</h2>
+<h3 id="threads">Threads</h3>
+<p>Threads are independent executions of code. In operating system terminology, &ldquo;threads&rdquo; differ from &ldquo;processes&rdquo; in that threads share an address space and thus do not require the allocation of new pages in virtual memory. This makes them cheaper to create. There are two primary ways to create threads: through the operating system or through the runtime.</p>
+<h4 id="kernel-threads">Kernel Threads</h4>
+<p>Kernel threads are created through the underlying operating system. They receive their own stack (allocated within the existing memory of their parent process) and of course their own CPU registers for the stack and instruction pointers. However, just because threads do not require allocating their own address space, they still require allocating a stack. While the exact size differs between implementations, they are almost always going to be larger than green threads. For example, Rust allocates a default thread stack size of around 2 MB <sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>; Java, 1 MB <sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>; POSIX standard thread (i.e. <code>pthread_create</code> in C), 2 MB. <sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup> Assuming we are using Rust or C, this means that to spawn one million threads, we would need 2 <em>terabytes</em> of RAM.</p>
+<h4 id="green-threads">Green Threads</h4>
+<p>Green threads, also called &ldquo;user-space threads,&rdquo; are created through the runtime rather than the underlying OS. Note that &ldquo;runtime&rdquo; can mean either the runtime of the language itself (which comprises all library code necessary to implement the language features used by your code) or a virtual machine runtime. Like kernel threads, green threads also receive their own stacks, but they are usually significantly smaller. This is because green threads are <em>multiplexed</em> onto kernel threads, meaning for every <code>M</code> green threads there are only <code>N</code> kernel threads where presumably <code>M &gt; N</code>. Think of this like green threads &ldquo;piggybacking&rdquo; on top of kernel threads.</p>
+<p>For example, assume we have 20 green threads that do not require large stacks. Perhaps they are mostly I/O bound operations, waiting on database requests or something. Instead of allocating 20 kernel threads, each having a far too generous 2 MB stack frame, we are looking at 40 MB of RAM, most of it wasted! Instead, if we give each thread, say a 4 KB stack frame, then we only need 0.8 MB of RAM and <em>only one</em> kernel thread. Here, we have <code>M = 20</code> and <code>N = 1</code>. Popular implementations of green threads all have their own lingo, most of it totally irrelevant. For example, we have Go&rsquo;s &ldquo;goroutines&rdquo; with a default green thread stack size of 2 KB <sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>; Haskell&rsquo;s sanely named &ldquo;threads&rdquo; with 1 KB <sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup>; and Erlang&rsquo;s insanely named &ldquo;processes&rdquo; with a shocking 233 <em>bytes</em>. <sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup></p>
+<p>Using these figures and the example in the previous section, even with the &ldquo;large&rdquo; size of Go, we can spawn one million threads with just 2 gigabytes of RAM. Extremely impressive!</p>
+<p>You might be wondering at this point &ldquo;Well, if green threads are so awesome, what&rsquo;s the catch?&rdquo; and that is a very fair question! Essentially, they are hard to get &ldquo;right.&rdquo; To support green threads, you need a runtime to manage the multiplexing and mapping from green to kernel threads (remember M:N). From Rust&rsquo;s point of view, this runtime bloat is too steep a price to pay and so the runtime only supports native kernel threads. Green threads also do not inherently support multi-core CPUs. Instead, they must be carefully distributed by the runtime across kernel threads running on each CPU. There is also the problem that if one green thread makes a blocking call, the whole kernel thread is blocked (i.e. descheduled by the operating system)! To fix this, all I/O operations need to be non-blocking, which the runtime needs to coordinate and this is no easy task.</p>
+<h3 id="parallelism">Parallelism</h3>
+<p>Now, while threads are a useful concept to achieve concurrency, if you only use one CPU out of four, you might actually see a slow down instead of a speed boost. This is because of the overhead associated with context switching threads. (e.g. saving and loading the stack and instruction pointers, paging in memory, etc.) While concurrency is merely structuring your program to better deal with multiple (independent) tasks, <strong>parallelism</strong> is actually executing tasks simultaneously. To make the distinction clearer, I&rsquo;ll use <a href="https://www.quora.com/Is-multithreading-concurrent-or-parallel/answer/Jan-Christian-Meyer">an excellent analogy</a> stolen from Jan Christian Meyer on Quora. Imagine you are coding while drinking coffee. These are two independent tasks, but you can only do one at a time. While you are doing both of these together, you never do both truly simultaneously; you do them <em>concurrently</em>. Now imagine you can clone yourself such that your clone will code while you drink the coffee. Now you are acting both concurrently <em>and in parallel</em>.</p>
+<p>Parallelism allows your concurrent code to run simultaneously on different processors. However, there is a limit. Generally speaking, once your number of threads exceeds the number of CPUs, performance actually degrades due to the overhead from context switching dominating the time actually spent executing the threads.</p>
+<h3 id="multitasking">Multitasking</h3>
+<p>If you are working with only one CPU, however, parallelism is almost impossible. Aside from crazy things like hyperthreading, you just physically cannot execute more than one instruction at once on a single core. So, what&rsquo;s a program to do then? We&rsquo;ve been concurrently programming for decades now and long before multi-core machines came along so obviously there&rsquo;s some way. The secret here is that the operating system will rapidly switch between tasks giving the illusion to the human user that we are running in parallel. What does the &ldquo;switching&rdquo; here is known as the &ldquo;scheduler&rdquo; because it schedules the different tasks to run in a certain order. There are two main ways for going about this.</p>
+<h4 id="preemptive">Preemptive</h4>
+<p>Preemptive schedulers are by far the most common for popular operating systems. They operate by forcibly interrupting tasks to schedule a new one, trying to operate as fairly as possible generally. They usually make some kind of optimization whereby a task that makes an I/O request is &ldquo;blocked&rdquo; from running until the request returns with something useful. These are used for all kernel threads and Erlang&rsquo;s green threads (called &ldquo;processes&rdquo;).</p>
+<h4 id="cooperative">Cooperative</h4>
+<p>Cooperative schedulers on the other hand wait for a thread or process to explicitly <em>yield</em> to them.</p>
+<h2 id="concurrency-control">Concurrency Control</h2>
+<p>Now that we’ve seen how to achieve concurrency, let’s see how to achieve it <em>well</em>. There are two extremely broad and far from comprehensive categories I’ll be covering: methods which require sharing memory and methods which require message passing.</p>
+<p>However, before we proceed, a warning: shared memory is generally regarded as less safe than message passing, although more efficient in terms of memory usage. Message passing eliminates whole classes of common concurrency bugs associated with shared memory.</p>
+<h3 id="shared-memory">Shared Memory</h3>
+<p>This class of concurrency control mechanisms all depend on concurrent tasks sharing memory and having access to the same address space. As we saw above, this is usually not a problem as threads already occupy the same address space.</p>
+<h4 id="spinlock">Spinlock</h4>
+<p>A spinlock is the simplest of all shared memory mechanisms, which can be a boost for developer efficiency but a drag for performance. Threads lock the spinlock and then have exclusive access to its contents until they unlock it. Once the thread unlocks the spinlock, <em>all waiting threads</em> are woken up and it becomes a Hunger Games style race for whichever one acquires it. In other words, the order of acquisition is NOT fair and is not FIFO. When threads are waiting for the lock, they enter an infinite while loop, doing nothing except &ldquo;spinning&rdquo; and wasting CPU cycles.</p>
+<p>Take a look at the very simple implementation for a spinlock below to get a more concrete idea of how they work. I used Go to implement it, partially because I used it as the green thread spokesperson and partially because its syntax is one of the more concise out there.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Spinlock</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">locked</span> <span style="color:#66d9ef">bool</span>
+}
+
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Spinlock</span>) <span style="color:#a6e22e">lock</span>() {
+    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">locked</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">true</span> {
+        <span style="color:#75715e">// wait or spin
+</span><span style="color:#75715e"></span>    }
+    <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">locked</span> = <span style="color:#66d9ef">true</span>
+}
+
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Spinlock</span>) <span style="color:#a6e22e">unlock</span>() {
+    <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">locked</span> = <span style="color:#66d9ef">false</span>
+}
+</code></pre></div><h4 id="mutex">Mutex</h4>
+<p>A mutex (or <strong>mut</strong>ual <strong>ex</strong>clusion lock) is very simple to a spinlock, with an extra optimization. Rather than wait for the lock to be free and waste valuable CPU cycles on what is essentially a fancy while loop (see above implementation), we can instead form a queue of threads waiting and then yield to the OS, allowing the thread actually holding the mutex to finish as quickly as possible.</p>
+<h4 id="read-write-lock">Read-Write Lock</h4>
+<p>The main problem with shared memory is not inherently that it is shared but that it’s <strong>mutable</strong>. The only reason a thread needs a lock to access a value is because that value may have changed (mutated). If we can make guarantees about read-only access to the value, we can make our lock usage more efficient and finely tuned. A read-write lock is a mutex which grants unlimited access to threads only reading a value (these threads are called &ldquo;readers&rdquo;) but still allows only one thread to write to the value (&ldquo;writers&rdquo;). When a writer needs the lock, it waits on all readers to finish using it (unlock it) and then acquires it. All other readers and writers are now blocked from acquiring the lock until this writer is done.</p>
+<p>If you use Rust, then this sort of talk might sound strangely familiar. And you would be right! This concept of multiple readers and single writers is analogous to Rust&rsquo;s rules about mutable references. Just like read-write locks allow multiple readers, Rust allows multiple immutable references to exist at once. And just like read-write locks only allow one writer, Rust will only allow one mutable reference at a time. So the analogy of read:immutable reference::write:mutable reference is a handy way of thinking about this. <sup id="fnref:7"><a href="#fn:7" class="footnote-ref" role="doc-noteref">7</a></sup></p>
+<p>Read-write locks can potentially allow your program to achieve greater concurrency, as more threads can read the value than can with a mutex. For example, if you have a value that is (1) frequently read, (2) rarely updated, and (3) used to perform an I/O operation while still holding a read lock, then a read-write lock is ideal. However, if there are many more writes than reads, then the added overhead of the more complex read-write lock operations can cause slight performance losses. This is also the case if you usually only have one reader at a time; the overhead of the lock will dominate the read operation itself.</p>
+<h4 id="semaphore">Semaphore</h4>
+<p>So far, we have only seen single-resource locks. What if you have multiple related values you want to protect? For example, you have an array which some threads will dump data into and some will take data out of. This is known as a &ldquo;producer-consumer queue.&rdquo; Imagine the producers as people ordering coffee at Starbucks (putting orders into the array) and the consumers as the baristas making the coffee (taking orders out of the array to complete them). For our baristas' sake, we&rsquo;ll limit the maximum number of orders to eight at a time. As long as there are fewer than eight orders, any call to place an order will succeed first try and return. However, if there are eight orders, any customer wanting to place an order will have to wait until one is completed. For this reason, we will call the function to order <code>wait</code>. When our baristas are done with an order, they call out the name of the customer who ordered it. In other words, they signal to the customers that their order is ready. For this reason, this function is called <code>signal</code>. This will also free up one spot in the queue of orders.</p>
+<p>Check out the Go implementation below to see a more concrete example:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Semaphore</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">capacity</span> <span style="color:#66d9ef">int32</span>
+}
+
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Semaphore</span>) <span style="color:#a6e22e">wait</span>() {
+    <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">capacity</span> <span style="color:#f92672">-=</span> <span style="color:#ae81ff">1</span>
+    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">capacity</span> &lt; <span style="color:#ae81ff">0</span> {
+
+    }
+}
+
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Semaphore</span>) <span style="color:#a6e22e">signal</span>() {
+    <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">capacity</span> <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+}
+
+<span style="color:#a6e22e">starbucks_semaphore</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">Semaphore</span>{<span style="color:#ae81ff">8</span>}
+</code></pre></div><h4 id="software-transactional-memory">Software Transactional Memory</h4>
+<p>Until this point, &ldquo;shared memory&rdquo; has been synonymous with &ldquo;locks.&rdquo; There is a developing effort however in using shared memory in concurrent programs <em>without locks.</em> Heresy, I know! How is this possible? And what sort of witchcraft begets this magic? Well, it turns out, a very complex kind.</p>
+<p>Software transactional memory uses lockless mechanisms to control concurrent access to shared memory. Its core is the <strong>transaction</strong>, an object representing a value at a given time. Think of a transaction as a JavaScript object (dictionary, hash table, map) with three keys:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+  <span style="color:#f92672">&#34;variable&#34;</span>: <span style="color:#e6db74">&#34;X&#34;</span>,
+  <span style="color:#f92672">&#34;version&#34;</span>: <span style="color:#ae81ff">1</span>,
+  <span style="color:#f92672">&#34;value&#34;</span>: <span style="color:#ae81ff">13</span>
+}
+</code></pre></div><p>Here, our variable is the creatively named &ldquo;X&rdquo; and we have the original, unmodified version of it with a value of 13. Lucky us! When a thread wants to access any variable within an STM block (we&rsquo;ll get to this later), it really gets back a copy from the runtime. Now, the thread can do whatever it wants on the copy of the real object. After it&rsquo;s done, it needs to <strong>commit</strong> its modifications (think of this in the Git sense). If the version the copy has matches the version of the original, then the change is committed. If not, our original object has been modified and the thread will re-try its operations with a new copy (probably with version 2, for example).</p>
+<p>STM operates on the level of blocks within the code that are marked to run within a transaction. We call these blocks <strong>atomic</strong>, as they assume that their operations are uninterruptible, indivisible, and completely isolated from other threads. Although Clojure has native implementation of STM and I do love LISPs, I am going to follow convention and use a Go-esque syntax. (This is not valid Go!)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">has_name</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">bool</span>)
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">update_map</span>() {
+    <span style="color:#a6e22e">atomic</span> {
+        <span style="color:#a6e22e">has_name</span>[<span style="color:#e6db74">&#34;Daenerys&#34;</span>] = <span style="color:#66d9ef">true</span>
+        <span style="color:#a6e22e">has_name</span>[<span style="color:#e6db74">&#34;Arya&#34;</span>] = <span style="color:#66d9ef">false</span>
+    }
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">read_map</span>() {
+    <span style="color:#a6e22e">atomic</span> {
+        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">has_name</span>[<span style="color:#e6db74">&#34;Daenerys&#34;</span>] {
+            <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">1</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+            <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">has_name</span>[<span style="color:#e6db74">&#34;Arya&#34;</span>] <span style="color:#f92672">==</span> <span style="color:#66d9ef">false</span> {
+                <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;A girl has no name.&#34;</span>)
+            }
+        }
+    }
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">update_map</span>()
+    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">read_map</span>()
+}
+</code></pre></div><p>There are several drawbacks to STM. First, the atomic blocks must be &ldquo;pure,&rdquo; which means they cannot have any side effects (i.e. database or other network calls). This can be difficult to do, especially in real-world web-based applications. Further, STM will typically retry atomic blocks several times before committing, which can take a lot of time. This is to say that STM is really only useful if you do not anticipate heavily contested resources. Currently, it only has core language support in Clojure with its <code>dosync</code> macro and Haskell.</p>
+<h3 id="message-passing">Message Passing</h3>
+<p>Now to the <del>better</del> other side of concurrency control! Message passing differs from shared memory in that it emphasizes:</p>
+<ul>
+<li>immutable data</li>
+<li>explicit communication</li>
+<li>truly isolated processes</li>
+</ul>
+<p>Rather than &ldquo;communicating by sharing memory&rdquo;, this is &ldquo;sharing memory by communicating.&rdquo; <sup id="fnref:8"><a href="#fn:8" class="footnote-ref" role="doc-noteref">8</a></sup> (We do not actually share memory.) In this version, our threads do not have access to the same memory space and only communicate by explicitly sending messages to each other.</p>
+<h4 id="actor-model">Actor Model</h4>
+<p>Most famously implemented by Erlang (although this is somewhat contentious for reasons not in scope here), the actor model states that &ldquo;everything is an actor.&rdquo; If this sounds similar to Java&rsquo;s &ldquo;everything is an object,&rdquo; then you are very right! <!-- raw HTML omitted -->More so than Sun Microsystems who warped the entire meaning of the word &ldquo;object&rdquo; to market their product. <sup id="fnref:9"><a href="#fn:9" class="footnote-ref" role="doc-noteref">9</a></sup><!-- raw HTML omitted --> But we won&rsquo;t get into that here either.</p>
+<p>So, everything is an actor. Imagine you have all your threads in their own rooms and the only way they can communicate is through their mailbox. This mailbox is infinitely big (within the RAM of your computer). Also, it does not matter where in the world the mailbox is, all other mailboxes can reach it if they know its address. Dropping the analogy, any Erlang process can talk to any other Erlang process, <em>even if they are on different machines.</em> I have written up a simple worker node example below to see, although it is in Elixir (a modern language running on the same VM as Erlang) which many find harder to understand than, say, C or Python. Believe it or not, Elixir is an improvement over Erlang syntax.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-elixir" data-lang="elixir"><span style="color:#66d9ef">def</span> worker(parent) <span style="color:#66d9ef">do</span>
+    <span style="color:#e6db74">:timer</span><span style="color:#f92672">.</span>sleep(<span style="color:#ae81ff">1000</span>)
+    <span style="color:#75715e"># this is asynchronous/non-blocking</span>
+    send(parent, {<span style="color:#e6db74">:done</span>, self()})
+<span style="color:#66d9ef">end</span>
+
+parent <span style="color:#f92672">=</span> self()
+_child <span style="color:#f92672">=</span> spawn <span style="color:#66d9ef">fn</span> <span style="color:#f92672">-&gt;</span> worker(parent) <span style="color:#66d9ef">end</span>
+
+<span style="color:#75715e"># this is synchronous/blocking</span>
+<span style="color:#66d9ef">receive</span> <span style="color:#66d9ef">do</span>
+    {<span style="color:#e6db74">:done</span>, _} <span style="color:#f92672">-&gt;</span> <span style="color:#a6e22e">IO</span><span style="color:#f92672">.</span>puts <span style="color:#e6db74">&#34;Done!&#34;</span>
+<span style="color:#66d9ef">end</span>
+</code></pre></div><p>A common concern among developers is that message passing entails too great a performance hit to use in production systems. I too was guilty of this assumption until I read Joe Armstrong&rsquo;s paper on the topic. <sup id="fnref:10"><a href="#fn:10" class="footnote-ref" role="doc-noteref">10</a></sup> It takes 3 <em>micro</em>seconds to create a process with Erlang (up to 30k processes) and just 0.8 microseconds to send a message. For most applications, I imagine this will be more than acceptable.</p>
+<h4 id="communicating-sequential-processes">Communicating Sequential Processes</h4>
+<p>Communicating sequential processes (CSP) are nearly identical to the actor model in practice, with two key differences:</p>
+<ol>
+<li>CSP channels are anonymous; actors have identities (PIDs)</li>
+<li>CSP sends synchronously; actors send asynchronously</li>
+</ol>
+<p>For example, in the above example in our worker process, we do not block on the <code>send</code> operation. It just places a message in the mailbox of the parent and continues executing. In CSP, however, sending does block. For example, in the Go code below:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">worker</span>(<span style="color:#a6e22e">q</span> <span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">int</span>) {
+    <span style="color:#75715e">// synchronous/blocking
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">job</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">q</span>
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;Received job &#34;</span>, <span style="color:#a6e22e">job</span>)
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">q</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">int</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">worker</span>(<span style="color:#a6e22e">q</span>)
+
+    <span style="color:#75715e">// also synchronous/blocking
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">q</span> <span style="color:#f92672">&lt;-</span> <span style="color:#ae81ff">1</span>
+}
+</code></pre></div><p>If this were the actor model, the main function would not block on sending 1 to the channel. Note that in both models, receiving is synchronous.</p>
+<h2 id="thanks-for-reading">Thanks for reading!</h2>
+<p>This marks the end of our long journey through the various ways to achieve concurrency and to synchronize concurrent programs. I hope this was helpful!</p>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p><a href="https://github.com/rust-lang/rust/blob/caa231d998a5e853c7ba1455d7a05b500df9d63c/src/libstd/thread/mod.rs#L122">https://github.com/rust-lang/rust/blob/caa231d998a5e853c7ba1455d7a05b500df9d63c/src/libstd/thread/mod.rs#L122</a>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p>Running OpenJDK version “13” 64-Bit Server VM AdoptOpenJDK (build 13+33, mixed mode, sharing) on MacOS 64-bit&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3" role="doc-endnote">
+<p><a href="http://man7.org/linux/man-pages/man3/pthread_create.3.html">http://man7.org/linux/man-pages/man3/pthread_create.3.html</a>&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:4" role="doc-endnote">
+<p><a href="https://github.com/golang/go/blob/817afe83578d869b36e8697344bb2d557c86b264/src/runtime/stack.go#L72">https://github.com/golang/go/blob/817afe83578d869b36e8697344bb2d557c86b264/src/runtime/stack.go#L72</a>&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:5" role="doc-endnote">
+<p><a href="http://downloads.haskell.org/~ghc/7.4.1/docs/html/users_guide/runtime-control.html">http://downloads.haskell.org/~ghc/7.4.1/docs/html/users_guide/runtime-control.html</a>&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:6" role="doc-endnote">
+<p><a href="http://erlang.org/doc/efficiency_guide/processes.html">http://erlang.org/doc/efficiency_guide/processes.html</a>&#160;<a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:7" role="doc-endnote">
+<p>&ldquo;read:immutable::write:mutable&rdquo; reads as &ldquo;read is to immutable as write is to mutable.&rdquo; You can read more about English analogy format <a href="https://www.800score.com/gre-guidec2b.html">here</a>.&#160;<a href="#fnref:7" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:8" role="doc-endnote">
+<p><a href="https://blog.golang.org/share-memory-by-communicating">https://blog.golang.org/share-memory-by-communicating</a>&#160;<a href="#fnref:8" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:9" role="doc-endnote">
+<p>Joe Armstrong is not quite so bold, but you can listen to his interview <a href="https://www.infoq.com/interviews/johnson-armstrong-oop/">here</a>&#160;<a href="#fnref:9" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:10" role="doc-endnote">
+<p><a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.116.1969&amp;rep=rep1&amp;type=pdf">http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.116.1969&amp;rep=rep1&amp;type=pdf</a>&#160;<a href="#fnref:10" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+</div>
+</article></main>
+<footer class="footer">
+  <span>&copy; 2021 <a href="https://uncomputation.dev">Uncomputation</a></span>
+  <span>&middot;</span>
+  <span>Powered by <a href="https://gohugo.io/" rel="noopener" target="_blank">Hugo️️</a>️</span>
+  <span>&middot;</span>
+  <span>Theme️ <a href="https://github.com/nanxiaobei/hugo-paper" rel="noopener" target="_blank">Paper</a></span>
+</footer>
+</body>
+</html>
+

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <title>Twitter Clone in Go - Uncomputation</title>
+    
+    <meta name="description" content="I&rsquo;ve been interested in the Go programming language for a bit, largely due to the huge ecosystem exploding around it lately. Especially in web services (Mattermost, Keybase, Uber, etc.) and deployment tools (Docker, Kubernetes), there have been so many amazing new tools built in the language that I&rsquo;ve been meaning to see what the excitement was all about. And, as a web-loving programmer, I had particular interest vested in the merits of Go.">
+    <meta name="author" content="">
+    
+    <link href="https://uncomputation.dev/style.css" rel="stylesheet">
+    
+    <link rel="apple-touch-icon" href="https://uncomputation.dev/apple-touch-icon.png">
+    <link rel="icon" href="https://uncomputation.dev/favicon.ico">
+    <meta name="generator" content="Hugo 0.85.0" />
+    
+    </head>
+  <body class="single">
+    <header class="header">
+      <nav class="nav">
+        <p class="logo"><a href="https://uncomputation.dev">Uncomputation</a></p>
+        <ul class="menu">
+          <li>
+            <a href="/posts">Posts</a>
+          </li>
+          <li>
+            <a href="/projects">Projects</a>
+          </li>
+          <li>
+            <a href="/recipes">Recipes</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <main class="main">
+
+
+<article class="post-single">
+  <header class="post-header">
+    <h1 class="post-title">Twitter Clone in Go</h1>
+    <h2 class="post-subtitle">My first use of Go</h2>
+    <div class="post-meta">January 19, 2020</div>
+  </header>
+  <div class="post-content"><p>I&rsquo;ve been interested in the Go programming language for a bit, largely due to the huge ecosystem exploding around it lately. Especially in web services (Mattermost, Keybase, Uber, etc.) and deployment tools (Docker, Kubernetes), there have been so many amazing new tools built in the language that I&rsquo;ve been meaning to see what the excitement was all about. And, as a web-loving programmer, I had particular interest vested in the merits of Go.</p>
+<p>I hope you&rsquo;ll forgive me for a small sidebar, but after this project, I believe I finally have a grasp on what makes Go so popular despite the on-paper disadvantages to many other languages. Go is slower, less safe, and less innovative than Rust yet less &ldquo;pleasant&rdquo; than Python. So why have so many people flocked to it then? Two reasons, in my opinion:</p>
+<ol>
+<li>Go has a <em>niche</em>: web services. This gives it a clear entry into many new projects, whereas something like Rust isn&rsquo;t so &ldquo;obvious.&rdquo;</li>
+<li>Simplicity.</li>
+</ol>
+<p>Rust borrows from a lot of programming language theory and functional paradigms (pattern matching, compile-time concurrency error detection, the borrowing system) making it exceptional, on paper. Go, on the other hand, is the statistical average of every Algol language since the 1960s and that can be <em>nice</em>. It&rsquo;s easy to learn, since you&rsquo;ve seen it already. Rust is a stick shift; Go, an automatic. Sometimes that extra control and &ldquo;correctness&rdquo; can be nice, even essential. But for most web-based projects, the bottleneck is not in your server code, but in the inherent network latency (or the modern megabytes of JavaScript waiting to be downloaded). This makes Go perfect for web projects and other applications which need speed, but not at the expense of development time. Go provides a stellar standard library, an amazing implementation of green threads, and a lot of development niceties (don&rsquo;t talk to me about its dependency management situation though).</p>
+<p>So, Go! Now that we&rsquo;ve established a bit of the motivations for using it, let&rsquo;s talk about my overall experience.</p>
+<h2 id="things-i-liked">Things I Liked</h2>
+<p>Surprisingly, I found the lack of semicolons refreshing. I hate whitespace delimiting, but actually found the unterminated newlines nice and not at all &ldquo;squishy&rdquo; like Python.</p>
+<p>The compile times are so snappy it feels like a scripting language. My Twitter project used Postgres drivers, Google Cloud libraries, and a non-trivial amount of application code and never once did I worry about killing the server to reload a one-line change. It just <em>worked</em>. And, unlike Node.js, I felt good knowing that it not just worked, but that performance was excellent. Not that Node is &ldquo;slow,&rdquo; but it&rsquo;s hard to beat a compiled language.</p>
+<p>Coming from the JavaScript community, the lack of a strong library community in Go was off-putting at first. With JavaScript, there are clear &ldquo;standards&rdquo;: Express, React, Webpack, Passport. These almost go without saying. This can be really comforting, having tons of tutorials and examples and GitHub issues walking through your exact problem(s). Go isn&rsquo;t like this. Within the Go ecosystem, it&rsquo;s much more modular and the libraries provided are intentionally very minimal. For example, the <a href="https://github.com/gorilla/sessions">Gorilla sessions library</a> I used was five files. I could go into the code and understand exactly was happening. Compare this to JavaScript, where you find yourself hunting some invisible rabbit down a hole 42 dependencies deep screaming &ldquo;NODE GYP ERROR.&rdquo;</p>
+<p>Documentation. <a href="https://godoc.org">GoDoc</a> is basically Go&rsquo;s version of Python&rsquo;s <a href="https://readthedocs.io/">ReadTheDocs</a> but because Go is statically-typed, it shows all the library-defined types, function parameters and return values, and even examples in an organized, clear way. This was invaluable.</p>
+<p>Go&rsquo;s lack of &ldquo;elegance&rdquo; or &ldquo;complexity&rdquo; can be mind-clearing in some senses. You work with a basic set of building blocks: for loops, structs, <code>if err != nil</code>, type casting, etc. And the rest is up to you! There&rsquo;s no <code>map</code>, <code>reduce</code>, or contagious <code>async/await</code>. Once I got used to it, the approach was familiar and comfortable.</p>
+<h2 id="things-i-disliked">Things I Disliked</h2>
+<p>Go has a concept of &ldquo;zero values,&rdquo; meaning the sensible &ldquo;default&rdquo; value for a particular type. For integers, it&rsquo;s zero; for strings, empty string. So when you instantiate a struct, any unspecified fields will be their respective zero value. I didn&rsquo;t like this because when I accidentally forgot a field, Go didn&rsquo;t warn me at all! The more types you define, the bigger a mess this becomes and it spreads around the codebase. I wish there was some way to define optional fields à la Rust or Swift.</p>
+<p>The semantics of assignment versus definition can get mildly annoying due to Go&rsquo;s use of the <code>:=</code> (definition operator). Whenever I would define another <code>err</code> variable earlier in a function, Go would complain that I was no longer initializing the former-first error variable. As an example, this is okay:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">someFallibleOp</span>()
+<span style="color:#75715e">// ...
+</span></code></pre></div><p>Whereas this isn&rsquo;t:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">result</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">someOtherFallibleOp</span>()
+<span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">someFallibleOp</span>()
+</code></pre></div><p>Which also brings us to unused variables. I understand that in a large project, especially one at Google, these small conveniences add up and lead to confusing and unclear code (i.e. &ldquo;why did they declare this variable if they didn&rsquo;t use it?&quot;), but it can be annoying when it&rsquo;s just you iteratively developing. But I get why Go has this opinion and overall I&rsquo;m not mad about it.</p>
+<p>For something as common as printing out values, Go should also really have a global <code>print()</code> function instead of <code>fmt.Printf()</code> but now that they don&rsquo;t, it&rsquo;s too late and we&rsquo;ll never get that feature! It&rsquo;s a very strange decision, especially once you consider that <code>append()</code> is a built-in, but <code>print()</code> isn&rsquo;t. I would greatly prefer an interface implementation instead (<code>slice.append(val)</code>), but the lack of generics in the language makes this impossible to implement, so we have a strange mix of things that are built in and things that aren&rsquo;t.</p>
+<p>Go&rsquo;s VSCode extension is incessant about the numerous plugins it offers to the point I almost hated re-opening the application.</p>
+<h2 id="overall">Overall</h2>
+<p>I am overall a fan of the language and the huge ecosystem it offers and plan to continue to use Go in future projects! Even the &ldquo;bad&rdquo; things either made sense or weren&rsquo;t truly bad (except null pointer exceptions! In 2020!!!) and the trade-off of less than Rust-level safety for Go-level productivity and developing time felt very worth it.</p>
+</div>
+</article></main>
+<footer class="footer">
+  <span>&copy; 2021 <a href="https://uncomputation.dev">Uncomputation</a></span>
+  <span>&middot;</span>
+  <span>Powered by <a href="https://gohugo.io/" rel="noopener" target="_blank">Hugo️️</a>️</span>
+  <span>&middot;</span>
+  <span>Theme️ <a href="https://github.com/nanxiaobei/hugo-paper" rel="noopener" target="_blank">Paper</a></span>
+</footer>
+</body>
+</html>
+

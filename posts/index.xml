@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>My Posts 💌 on Uncomputation</title>
+    <link>https://uncomputation.dev/posts/</link>
+    <description>Recent content in My Posts 💌 on Uncomputation</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 05 May 2021 20:03:46 -0700</lastBuildDate><atom:link href="https://uncomputation.dev/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Does Twitter invite outrage?</title>
+      <link>https://uncomputation.dev/posts/does-twitter-invite-outrage/</link>
+      <pubDate>Wed, 05 May 2021 20:03:46 -0700</pubDate>
+      
+      <guid>https://uncomputation.dev/posts/does-twitter-invite-outrage/</guid>
+      <description>Out of all the social media, it’s no secret that Twitter is where you’ll get “cancelled” for comparing Raya and the Last Dragon to Avatar: The Last Airbender (or similarly trivial infractions) by mobs of trigger-happy enragés. Of course, public outrage is certainly nothing new, much less the invention of Twitter. There are complex social, political, and intellectual roots to the various online discourses we see now, far too many to elaborate in one blog post.</description>
+    </item>
+    
+    <item>
+      <title>Headache Design</title>
+      <link>https://uncomputation.dev/posts/headache-design/</link>
+      <pubDate>Tue, 04 May 2021 20:00:00 -0700</pubDate>
+      
+      <guid>https://uncomputation.dev/posts/headache-design/</guid>
+      <description>I am genetically prone to get headaches and migraines. Since I was around five or six, I have learned a variety of coping mechanisms, from taking pain relievers early to hot baths to green lights. 1 Looking at a screen is never good for head pain, but in 2021, we can’t always avoid it. Sometimes it’s for work, sometimes it’s for paying a bill or other bookkeeping, other times it’s just for fun because who wants to lay in bed alone in the dark with a warm washcloth for hours?</description>
+    </item>
+    
+    <item>
+      <title>Real CS Curriculum</title>
+      <link>https://uncomputation.dev/posts/real-cs-curriculum/</link>
+      <pubDate>Sat, 24 Apr 2021 16:06:21 -0700</pubDate>
+      
+      <guid>https://uncomputation.dev/posts/real-cs-curriculum/</guid>
+      <description>As I’m approaching my first full year in industry after school, I’ve noticed the divide between what’s taught in class versus what you use day-to-day more than ever. Now don’t take this the wrong way. I’m certainly not advocating higher education becomes a bootcamp or saying the theoretical doesn’t matter. It very much does and, even though it’s become a meme to poke fun at whiteboarding interviews or algorithm questions, I still definitely believe those are essential to any long-term career in engineering/programming.</description>
+    </item>
+    
+    <item>
+      <title>Is Cyberpunk cyberpunk?</title>
+      <link>https://uncomputation.dev/posts/is-cyberpunk-cyberpunk/</link>
+      <pubDate>Tue, 19 Jan 2021 20:00:25 -0700</pubDate>
+      
+      <guid>https://uncomputation.dev/posts/is-cyberpunk-cyberpunk/</guid>
+      <description>0. Genesis In the beginning, there was the steam engine. Or actually, there wasn’t.
+Cyberpunk visionary William Gibson remarked in a 2011 interview with The Paris Review:
+ “So I didn’t think it was terribly original, my concept of cyberspace. My anxiety, rather, was that if I had thought of it, twenty or thirty other science-fiction writers had thought of it at exactly the same time and were probably busy writing stories about it, too.</description>
+    </item>
+    
+    <item>
+      <title>Clever Costs</title>
+      <link>https://uncomputation.dev/posts/clever-costs/</link>
+      <pubDate>Thu, 17 Dec 2020 02:44:41 -0800</pubDate>
+      
+      <guid>https://uncomputation.dev/posts/clever-costs/</guid>
+      <description>I was going through basic LeetCode problems recently after hitting a frustrating snag in a real project and I came across a Problem. An easy problem. But an interesting one. Well, this is LeetCode we’re talking about so maybe “illustrative” is a better word. It’s an illustrative problem.
+I’m talking about the “Buy and Sell II” problem which essentially boils down to finding the sum of increasing intervals. Ah, I have just the solution for this!</description>
+    </item>
+    
+    <item>
+      <title>This blog is built with Hugo</title>
+      <link>https://uncomputation.dev/posts/hugo/</link>
+      <pubDate>Tue, 19 May 2020 12:00:00 -0700</pubDate>
+      
+      <guid>https://uncomputation.dev/posts/hugo/</guid>
+      <description>It took around a minute and a half for this site to build with GatsbyJS and what came out after was a near horrifying mess of “bundle split” JavaScript files and all sorts of underscores. Overall, it totalled up to over 88 kB! And that was just for my index page with a couple paragraphs and a nav bar. Spoiler alert but after switching to Hugo, I can build in less than 30 seconds with a sane output format consisting of just TWO kB (for the home page).</description>
+    </item>
+    
+    <item>
+      <title>Concurrency Masterpost</title>
+      <link>https://uncomputation.dev/posts/concurrency-masterpost/</link>
+      <pubDate>Fri, 10 Jan 2020 12:00:00 -0700</pubDate>
+      
+      <guid>https://uncomputation.dev/posts/concurrency-masterpost/</guid>
+      <description>Concurrency is at the heart of network programming. Most of networking is presumably I/O bound and as such it&amp;rsquo;s very easy to waste precious CPU cycles simply waiting for responses. To solve this, we structure our programs to be concurrent, dividing a problem into independent sections such that each concurrent unit may execute the sections in any order. Different concurrency and concurrency control mechanisms have been proposed in the past 60 years and I thought it would be helpful to have a reference point comparing them all.</description>
+    </item>
+    
+    <item>
+      <title>Tags as Set Theory</title>
+      <link>https://uncomputation.dev/posts/tag-set-theory/</link>
+      <pubDate>Sun, 29 Dec 2019 12:00:00 -0700</pubDate>
+      
+      <guid>https://uncomputation.dev/posts/tag-set-theory/</guid>
+      <description>As a former Tumblr-er, there was nothing more frustrating about that site than the tagging system. Aside from the near-universal problem of &amp;ldquo;this tag&amp;rdquo; vs. &amp;ldquo;thistag&amp;rdquo; vs. &amp;ldquo;This tag&amp;rdquo; vs. ad infinitum, I have yet to see a tagging system that allows set theory operations. What if I want to see posts analyzing the parallels between Taylor Swift’s &amp;ldquo;reputation&amp;rdquo; and &amp;ldquo;Lover&amp;rdquo;? Sure, I can search &amp;ldquo;reputation,&amp;rdquo; but then I have to sift through mostly irrelevant details to find the hidden gems.</description>
+    </item>
+    
+    <item>
+      <title>How to use CSS with native dark mode</title>
+      <link>https://uncomputation.dev/posts/dark-mode-css/</link>
+      <pubDate>Mon, 16 Dec 2019 12:00:00 -0700</pubDate>
+      
+      <guid>https://uncomputation.dev/posts/dark-mode-css/</guid>
+      <description>With iOS 13, I have been enjoying not just the beautiful new dark mode, but the automatic transition after sunset. It&amp;rsquo;s easier on my eyes and keeps me conscious of using technology too much before bed. That said, the native dark mode is only for native apps. Or is it?
+I thought it would be nice if there were CSS selectors capable of targeting users&#39; native preferences on the matter and luckily Apple did not disappoint.</description>
+    </item>
+    
+    <item>
+      <title>Welcome to my blog!</title>
+      <link>https://uncomputation.dev/posts/welcome-to-my-blog/</link>
+      <pubDate>Sun, 24 Jun 2018 12:00:00 -0700</pubDate>
+      
+      <guid>https://uncomputation.dev/posts/welcome-to-my-blog/</guid>
+      <description>Hello there! This is my very first post on my new website! 🎉 (Let&amp;rsquo;s hope emojis work properly.)
+This site will replace my old personal website, a handmade GEOS-OS simulator, which was very beloved to me, but not so much to everybody else. 😓 What you see right now is my attempt at a more &amp;ldquo;professional&amp;rdquo; (read: conventional) portfolio, although the actual &amp;ldquo;portfolio&amp;rdquo; part of that is questionable due to the as-of-yet unfinished projects page.</description>
+    </item>
+    
+  </channel>
+</rss>

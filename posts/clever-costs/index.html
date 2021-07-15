@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <title>Clever Costs - Uncomputation</title>
+    
+    <meta name="description" content="I was going through basic LeetCode problems recently after hitting a frustrating snag in a real project and I came across a Problem. An easy problem. But an interesting one. Well, this is LeetCode we’re talking about so maybe “illustrative” is a better word. It’s an illustrative problem.
+I’m talking about the “Buy and Sell II” problem which essentially boils down to finding the sum of increasing intervals. Ah, I have just the solution for this!">
+    <meta name="author" content="">
+    
+    <link href="https://uncomputation.dev/style.css" rel="stylesheet">
+    
+    <link rel="apple-touch-icon" href="https://uncomputation.dev/apple-touch-icon.png">
+    <link rel="icon" href="https://uncomputation.dev/favicon.ico">
+    <meta name="generator" content="Hugo 0.85.0" />
+    
+    </head>
+  <body class="single">
+    <header class="header">
+      <nav class="nav">
+        <p class="logo"><a href="https://uncomputation.dev">Uncomputation</a></p>
+        <ul class="menu">
+          <li>
+            <a href="/posts">Posts</a>
+          </li>
+          <li>
+            <a href="/projects">Projects</a>
+          </li>
+          <li>
+            <a href="/recipes">Recipes</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <main class="main">
+
+
+<article class="post-single">
+  <header class="post-header">
+    <h1 class="post-title">Clever Costs</h1>
+    <h2 class="post-subtitle">When one-liners become extra-liners</h2>
+    <div class="post-meta">December 17, 2020</div>
+  </header>
+  <div class="post-content"><p>I was going through basic LeetCode problems recently after hitting a frustrating snag in a real project and I came across a Problem. An easy problem. But an interesting one. Well, this is LeetCode we’re talking about so maybe “illustrative” is a better word. It’s an illustrative problem.</p>
+<p>I’m talking about the “Buy and Sell II” problem which essentially boils down to finding the sum of increasing intervals. Ah, I have just the solution for this! We’ll just walk through the array in pairs of two, summing the difference if it’s positive.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">max_profit</span>(std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> prices) {
+    <span style="color:#66d9ef">int</span> r <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> prices.len(); i<span style="color:#f92672">++</span>) {
+        <span style="color:#66d9ef">if</span> (prices[i] <span style="color:#f92672">&gt;</span> prices[i <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>]) {
+            r <span style="color:#f92672">+=</span> prices[i] <span style="color:#f92672">-</span> prices[i <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>];
+        }
+    }
+    <span style="color:#66d9ef">return</span> r;
+}
+</code></pre></div><p>Great! But my DRY detector is kicking in and it is not happy with that repetition of <code>prices[i - 1]</code> business. It’s ugly! Amateur even! Are you sure you’re a <em>real</em> computer programmer? Uh-oh, now imposter syndrome is chiming in too. This is getting out of hand. Luckily, I have just the clever one-liner to satisfy them both (for now).</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">max_profit</span>(std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> prices) {
+    <span style="color:#66d9ef">int</span> r <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> prices.len(); i<span style="color:#f92672">++</span>) {
+        r <span style="color:#f92672">+=</span> std<span style="color:#f92672">::</span>max(<span style="color:#ae81ff">0</span>, prices[i] <span style="color:#f92672">-</span> prices[i <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>]);
+    }
+    <span style="color:#66d9ef">return</span> r;
+}
+</code></pre></div><p>Beautiful! Linus will be pleased I saved an indentation. Happy and satiated, I submitted my concise little automaton.</p>
+<p>24 MILLISECONDS? I didn’t even chart on Leetcode’s runtime bulletin of shame. Unacceptable, I spent a whole brain cycle beautifying this function. I made an offering to DRY and I find myself now banished from the Leetcode chart? With what gold stars am I to feed to my ego now? Curious, I put both implementations into the online C++ assembler on Godbolt to see what was going on in the assembly version. A whole extra ten instructions were cluttering up my std::max one-liner. Instructions&hellip; for std::max itself. An extra function which I called explicitly.</p>
+<p>Now, this seems obvious in hindsight, but at the time of writing, I was so pumped on the high of development optimization that I forgot the other, very real dimension to optimization: time. You know, that little thing. It’s very easy as humans to make the connection between fewer lines of code to shorter runtimes. It makes intuitive sense. At a grocery store, you take the line with the fewest number of people in the belief that fewer people means less checkout time overall. But even that isn’t entirely true, is it? You can have one cashier faster than the other, customers with more items, technical difficulties, the pilgrims insisting to pay with cash, all manners of things complicate the relationship between line length and checkout time. But it’s often good enough that we make these calls every day because they work most of the time. Computers aren’t the same. At least not that straightforward. You have to take into account that most compiler optimization development goes to speeding up the majority of code. And most people don’t jump to the standard library when there’s a perfectly good implementation immediately obvious. Case in point, my first, unenlightened attempt took only 8%, placing me well within my vanity bracket on Leetcode.</p>
+<p>I guess the moral of this post is functions have overhead, a lot more overhead than extra keystrokes. Clever costs.</p>
+</div>
+</article></main>
+<footer class="footer">
+  <span>&copy; 2021 <a href="https://uncomputation.dev">Uncomputation</a></span>
+  <span>&middot;</span>
+  <span>Powered by <a href="https://gohugo.io/" rel="noopener" target="_blank">Hugo️️</a>️</span>
+  <span>&middot;</span>
+  <span>Theme️ <a href="https://github.com/nanxiaobei/hugo-paper" rel="noopener" target="_blank">Paper</a></span>
+</footer>
+</body>
+</html>
+
