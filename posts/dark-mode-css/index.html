@@ -1,0 +1,19 @@
+<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Dustin Newman's blog"><link rel="shortcut icon" type=image/x-icon href=https://dustinnewman.net/favicon.ico><link rel=stylesheet href=/css/style.min.css><title>How to use CSS with native dark mode</title></head><body><header><h2><a href=https://dustinnewman.net>Dustin Newman</a></h2><nav><ul><li><a href=/ title=posts>posts</a></li><li><a href=/about/ title=about>about</a></li></ul></nav></header><main><article><header><h1>How to use CSS with native dark mode</h1><div><time>December 16, 2019</time></div></header><p>With iOS 13, I have been enjoying not just the beautiful new dark mode, but the automatic transition after sunset. It&rsquo;s easier on my eyes and keeps me conscious of using technology too much before bed. That said, the native dark mode is only for native apps. Or is it?</p><p>I thought it would be nice if there were CSS selectors capable of targeting users&rsquo; native preferences on the matter and luckily Apple did not disappoint. In <a href=https://webkit.org/blog/8840/dark-mode-support-in-webkit/>this tutorial post</a> from the WebKit blog, they introduce the <code>color-scheme</code> CSS property, which supports both <code>light</code> and <code>dark</code> values. I was drawn to this solution over the DIY option (which usually involves some sort of moon icon) because it offers:</p><ol><li>Less UI complexity</li><li>More seamless integration with the user&rsquo;s system</li><li>No JavaScript logic required</li></ol><p>All wins in my book, so let&rsquo;s get started! (For this blog, I use SCSS, but I only use the SCSS variables for media queries and the rest of this tutorial uses regular CSS variables.)</p><p>Add this snippet to your top-most styling file (for me, it was my <code>main.scss</code>):</p><pre><code>:root {
+  color-scheme: light dark;
+}
+</code></pre><p>This tells the browser that your site supports both <code>light</code> and <code>dark</code> themes. By itself, however, it&rsquo;s not super useful, so let&rsquo;s define some variables that we can switch depending on the theme.</p><pre><code>:root {
+  color-scheme: light dark;
+  --bg-color: #fcfcff;
+  --text-color: #000000;
+}
+</code></pre><p>Here, we use an off-white as the background color and pure black as the text color. I strongly recommend using functional names rather than descriptive (i.e. <code>bg-color</code> instead of <code>off-white</code>) because it allows us to use the same variable declarations with only one media query, rather than using a media query each time we want to use either <code>off-white</code> or the dark-theme counterpart.</p><p>Now the magic!</p><pre><code>@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #121212;
+    --text-color: #fcfcfc;
+  }
+}
+</code></pre><p>With one media query, we re-define our variables so that the <em>text</em> is now off-white and the background is off-black. To apply this, let&rsquo;s use our main <code>body</code> element as an example.</p><pre><code>body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+</code></pre><p>Now our <code>body</code> will use the <code>bg-color</code> variable which, if the user prefers dark mode, will be an off-black! Nice! I hope this mini-tutorial was helpful and that you see the advantages of this way over rolling your own moon icon; although I&rsquo;ll admit that might be a bit more fun.</p></article></main><footer></footer></body></html>
