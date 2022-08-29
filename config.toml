@@ -1,0 +1,26 @@
+baseURL = "https://dustinnewman.net"
+languageCode = "en-us"
+title = "Dustin Newman"
+enableInlineShortcodes = true
+pygmentsCodeFences = false
+pygmentsUseClasses = false
+
+[params]
+  description = "Dustin Newman's blog"
+  dark = "auto"
+  highlight = false
+
+[menu]
+  [[menu.main]]
+    identifier = "posts"
+    name = "posts"
+    title = "posts"
+    url = "/"
+    weight = 10
+
+  [[menu.main]]
+    identifier = "about"
+    name = "about"
+    title = "about"
+    url = "/about/"
+    weight = 20
