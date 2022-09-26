@@ -2,7 +2,7 @@
 title: "About"
 ---
 
-This is a blog about programming, technology, and philosophy. All opinions are mine and not (necessarily) representative of any past/current/future employers.
+All opinions are mine and not (necessarily) representative of any past/current/future employers.
 
 ```
 -----BEGIN PGP PUBLIC KEY BLOCK-----
