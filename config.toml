@@ -5,6 +5,9 @@ enableInlineShortcodes = true
 pygmentsCodeFences = false
 pygmentsUseClasses = false
 
+[markup.goldmark.renderer]
+unsafe = true
+
 [params]
   description = "Dustin Newman's blog"
   dark = "auto"
