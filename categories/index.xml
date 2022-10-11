@@ -1,4 +1,158 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Categories on Dustin Newman</title><link>https://dustinnewman.net/categories/</link><description>Recent content in Categories on Dustin Newman</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><atom:link href="https://dustinnewman.net/categories/index.xml" rel="self" type="application/rss+xml"/><item><title>Stable Diffusion Gallery</title><link>https://dustinnewman.net/posts/stable-diffusion-gallery/</link><pubDate>Sat, 24 Sep 2022 18:17:58 -0700</pubDate><guid>https://dustinnewman.net/posts/stable-diffusion-gallery/</guid><description>&lt;p>I have been playing with &lt;a href="https://github.com/CompVis/stable-diffusion">Stable Diffusion&lt;/a> lately, as I am sure many have. I thought it would be worthwhile to publish some of my favorites along with the prompts and seeds for each image. All images have a &amp;ldquo;classifier free guidance (CFG) scale&amp;rdquo; (or simply &amp;ldquo;guidance&amp;rdquo;) value of 7.5; are 512 by 512 pixels; use the k_lms sampler; and use 50 steps. The seeds are marked after the prompt after the -S flag.&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Categories on Dustin Newman</title><link>https://dustinnewman.net/categories/</link><description>Recent content in Categories on Dustin Newman</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><atom:link href="https://dustinnewman.net/categories/index.xml" rel="self" type="application/rss+xml"/><item><title>Furbish</title><link>https://dustinnewman.net/posts/furbish/</link><pubDate>Mon, 10 Oct 2022 21:50:22 -0700</pubDate><guid>https://dustinnewman.net/posts/furbish/</guid><description>&lt;p>When I was a child, my grandmother got me a Furby for my birthday. I don’t remember ever naming him, other than “Furby” that is. Furby, like all of his species, spoke a language called Furbish. Furbish was supposedly a simple language. “Bottle” was “bah-bah,” just like an English-learning baby would say. “You” was “ooh-nye.&amp;quot; It didn’t really matter to me at the time. I was just happy to have Furby. Besides, the toy was programmed to progressively speak more English words, giving the impression it was learning English and giving you incentive to talk and play with it. The Furbys were designed to “integrate themselves even more tightly with a child&amp;rsquo;s life - speaking a secret language, playing games, seeking praise. The technology is increasingly invisible; no instruction manual is necessary, and children can have what they most desire: the perfect friend, loyal and unconditionally loving.” &lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>&lt;/p>
+&lt;p>The Furby was invented by David Hampton. &lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup> He knew several languages - Japanese, Thai, Hebrew, Mandarin - and worked them all into a minimal language soup of 200 words. The Furbish word for “big” is “da” because the Mandarin word for “big” is 大 (dà). The Furbish word for “light” is “elo” as a variation on Hebrew’s אלוהים (elohím - “God”). There is no further reasoning beyond that, and not even the artificial chaos introduced in some conlangs (constructed languages) to imitate natural linguistic change. After all, it was a “five-inch gremlin.” &lt;sup id="fnref1:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>&lt;/p>
+&lt;p>However, now that I think about it, I got to wondering what an actual Furbish language would look like. What were the qualities Hampton gave it, intentionally or otherwise? Is it analytic or synthetic? What kind of alphabet would it use? Of course, it is truly impossible to say for two reasons. The first and largest is that Furbish was not a properly designed language. The second is that we simply lack a large enough sample of Furbish to make any conclusive statements. Linear B is a famously unsolved puzzle and we have over 6,000 inscriptions to analyze. With only 200 words and a handful of phrases in Furbish, it is dangerous to conclude much of anything. That said, we can imagine from what we do know.&lt;/p>
+&lt;p>My sources for this include the “official” (I have not verified this claim) Furby wiki’s &lt;a href="https://official-furby.fandom.com/wiki/Furbish_(language)">entry&lt;/a> on Furbish as well as an &lt;a href="https://www.hasbro.com/common/assets/Image/Printables/48b6f7255056900b10435c83cc620c4b/25B3E34650569047F5895DB39002D65D/25B91F7B50569047F5B92815857F066F.pdf">English-Furbish dictionary&lt;/a> from Hasbro’s website. This gave me a combined list of 154 words. I then noticed a pattern. All Furbish words were made up of CV syllables with a very limited set of consonants and a small vowel inventory as well. This led me to theorize a syllabary for Furbish, like Japanese &lt;sup id="fnref:3">&lt;a href="#fn:3" class="footnote-ref" role="doc-noteref">3&lt;/a>&lt;/sup> or Cherokee. For those who are unaware, a syllabary is a writing system where each syllable in a language is represented by a distinct grapheme (written character). Overwhelmingly, these languages tend to support only CV syllable structure, like Furbish. So, all I had to do was to find all syllables used in Furbish, and then assign a grapheme to each one. If the number of consonants was relatively small, this tends to support a syllabary writing system. For reference, Japanese includes nine consonants and five vowels in its syllabary, as well as a “null consonant” i.e. a vowel on its own. From my analysis of Furbish, I counted ten consonants and six vowels, also including a “null consonant.” This seems reasonable to function with a syllabary.&lt;/p>
+&lt;p>Some notes: the Furby wiki states that “yumm” is a word in Furbish, but this would require a grapheme for the yod-schwa vowel pairing. To avoid this, I will just admit this will not be an ideal orthography. This “caveat,” though, is actually more in-line with real, natural language orthographies. I am also ignoring certain “loan words” in the data set like “yay,” “yippie,” and “uh-uh.”&lt;/p>
+&lt;p>In case you are just finding out, the canonical origin story of the Furbys is:&lt;/p>
+&lt;blockquote>
+&lt;p>Once upon a time, not so long ago&lt;/p>
+&lt;p>in a far off place, somewhere high in the sky&lt;/p>
+&lt;p>riding on an &amp;ldquo;a-loh may-lah&amp;rdquo; (cloud)&lt;/p>
+&lt;p>that floats near a &amp;ldquo;dah a-loh&amp;rdquo; (big sun)&lt;/p>
+&lt;p>lived the Furbys, each and every one&lt;/p>
+&lt;p>Some were grey, and others white&lt;/p>
+&lt;p>some were both, and some were bright&lt;/p>
+&lt;p>small of stature, big of heart&lt;/p>
+&lt;p>all the Furbys were &amp;ldquo;mee-mee&amp;rdquo; (very) smart&lt;/p>
+&lt;p>they spoke a language quite unknown,&lt;/p>
+&lt;p>for Furbish™ was a language all their own&lt;/p>
+&lt;/blockquote>
+&lt;p>In other words, Furbys came from space, most likely crash landing into Earth on an asteroid (“riding on a cloud”). Because of their association with the sky, I initially chose the Runic alphabet as a base to work with for the syllabary. My process was basically this:&lt;/p>
+&lt;ol>
+&lt;li>Analyze all consonant-vowel pairings&lt;/li>
+&lt;li>See which pairing for a given consonant was most frequent&lt;/li>
+&lt;li>Give this pairing the closest match in the Elder Futhark script&lt;/li>
+&lt;li>Then give the next closest matches to the next most frequent pairings&lt;/li>
+&lt;li>Repeat until there are no good matches left&lt;/li>
+&lt;/ol>
+&lt;p>This got me reasonably far, only need to fill in about ten or so entries. I was left with two choices: utilize the leftovers of the Runic alphabet (mostly variations on straight lines with smaller lines coming out) or search elsewhere. I chose the latter. In a callback to Hampton’s original construction of Furbish, I mostly took a hodgepodge of different symbols with no real logic. I tried roughly to keep certain consonants “in line” with each other. For example, the Elder Futhark script ᛒ for the “b” sound so I tried to keep all the symbols for “b” looking similar to that - angular, wide, relatively simple (but not straight lines either). I pulled from the Cherokee syllabary as it is one of the only other syllabaries in existence, it was fitting to use it as inspiration, as well as Cyrillic to keep with the Runic look. After all was said and done, I came up with the following syllabary:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th style="text-align:center">&lt;/th>
+&lt;th style="text-align:center">?&lt;/th>
+&lt;th style="text-align:center">B&lt;/th>
+&lt;th style="text-align:center">D&lt;/th>
+&lt;th style="text-align:center">H&lt;/th>
+&lt;th style="text-align:center">K&lt;/th>
+&lt;th style="text-align:center">L&lt;/th>
+&lt;th style="text-align:center">M&lt;/th>
+&lt;th style="text-align:center">N&lt;/th>
+&lt;th style="text-align:center">T&lt;/th>
+&lt;th style="text-align:center">W&lt;/th>
+&lt;th style="text-align:center">Y&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td style="text-align:center">&lt;strong>A&lt;/strong>&lt;/td>
+&lt;td style="text-align:center">ᚨ&lt;/td>
+&lt;td style="text-align:center">ᛒ&lt;/td>
+&lt;td style="text-align:center">ᛞ&lt;/td>
+&lt;td style="text-align:center">&lt;/td>
+&lt;td style="text-align:center">ᚴ&lt;/td>
+&lt;td style="text-align:center">ᚿ&lt;/td>
+&lt;td style="text-align:center">ᛗ&lt;/td>
+&lt;td style="text-align:center">ᛂ&lt;/td>
+&lt;td style="text-align:center">ᛏ&lt;/td>
+&lt;td style="text-align:center">ᛡ&lt;/td>
+&lt;td style="text-align:center">&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:center">&lt;strong>Y&lt;/strong>&lt;/td>
+&lt;td style="text-align:center">ᛇ&lt;/td>
+&lt;td style="text-align:center">ᛕ&lt;/td>
+&lt;td style="text-align:center">Ь&lt;/td>
+&lt;td style="text-align:center">&lt;/td>
+&lt;td style="text-align:center">&lt;/td>
+&lt;td style="text-align:center">&lt;/td>
+&lt;td style="text-align:center">&lt;/td>
+&lt;td style="text-align:center">ᚿ&lt;/td>
+&lt;td style="text-align:center">ꇰ&lt;/td>
+&lt;td style="text-align:center">&lt;/td>
+&lt;td style="text-align:center">&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:center">&lt;strong>E&lt;/strong>&lt;/td>
+&lt;td style="text-align:center">ᛖ&lt;/td>
+&lt;td style="text-align:center">ᛩ&lt;/td>
+&lt;td style="text-align:center">ᛯ&lt;/td>
+&lt;td style="text-align:center">ᚺ&lt;/td>
+&lt;td style="text-align:center">ᚷ&lt;/td>
+&lt;td style="text-align:center">ᛣ&lt;/td>
+&lt;td style="text-align:center">ᛘ&lt;/td>
+&lt;td style="text-align:center">&lt;/td>
+&lt;td style="text-align:center">ᚧ&lt;/td>
+&lt;td style="text-align:center">ᚹ&lt;/td>
+&lt;td style="text-align:center">ᛃ&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:center">&lt;strong>I&lt;/strong>&lt;/td>
+&lt;td style="text-align:center">ᛁ&lt;/td>
+&lt;td style="text-align:center">ᛓ&lt;/td>
+&lt;td style="text-align:center">ᛠ&lt;/td>
+&lt;td style="text-align:center">&lt;/td>
+&lt;td style="text-align:center">&lt;/td>
+&lt;td style="text-align:center">ᛨ&lt;/td>
+&lt;td style="text-align:center">Ꮞ&lt;/td>
+&lt;td style="text-align:center">ᛆ&lt;/td>
+&lt;td style="text-align:center">ᛐ&lt;/td>
+&lt;td style="text-align:center">ᚥ&lt;/td>
+&lt;td style="text-align:center">ᚳ&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:center">&lt;strong>O&lt;/strong>&lt;/td>
+&lt;td style="text-align:center">ᛟ&lt;/td>
+&lt;td style="text-align:center">ᛈ&lt;/td>
+&lt;td style="text-align:center">ᛥ&lt;/td>
+&lt;td style="text-align:center">&lt;/td>
+&lt;td style="text-align:center">ᚵ&lt;/td>
+&lt;td style="text-align:center">ᚱ&lt;/td>
+&lt;td style="text-align:center">Ꮌ&lt;/td>
+&lt;td style="text-align:center">ᚾ&lt;/td>
+&lt;td style="text-align:center">Ꮨ&lt;/td>
+&lt;td style="text-align:center">&lt;/td>
+&lt;td style="text-align:center">&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:center">&lt;strong>U&lt;/strong>&lt;/td>
+&lt;td style="text-align:center">ᚢ&lt;/td>
+&lt;td style="text-align:center">ᛔ&lt;/td>
+&lt;td style="text-align:center">ᛜ&lt;/td>
+&lt;td style="text-align:center">&lt;/td>
+&lt;td style="text-align:center">ᚲ&lt;/td>
+&lt;td style="text-align:center">ᛚ&lt;/td>
+&lt;td style="text-align:center">Ꮍ&lt;/td>
+&lt;td style="text-align:center">ᛀ&lt;/td>
+&lt;td style="text-align:center">Ꮦ&lt;/td>
+&lt;td style="text-align:center">&lt;/td>
+&lt;td style="text-align:center">&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>For example, the word “da” (big) would be written as ᛞ. I am using “Y” here to signify the aɪ diphthong used in English “bye” ([baɪ]). “E” represents close-mid front unrounded vowel ⟨e⟩ (used in “may”) and “I” represents the close front unrounded vowel ⟨i⟩ (used in “seat”).&lt;/p>
+&lt;p>Since these are a sky species, I thought it was fitting that their script be written vertically, top-down. In all examples, I will use this writing direction. First, the Furby wiki states that “how are you?” in Furbish is “oo-nye boe doo?” Using our orthography, we can write this as:&lt;/p>
+&lt;p>&amp;ldquo;How are you?&amp;rdquo; - oo-nye boe doo?:&lt;/p>
+&lt;!-- raw HTML omitted -->
+&lt;p>&amp;ldquo;Big fun!&amp;rdquo; - Dah doo-ay wah!:&lt;/p>
+&lt;!-- raw HTML omitted -->
+&lt;p>&amp;ldquo;Hey, I don&amp;rsquo;t see you&amp;rdquo; - Hey, kah-boo ay-ay u-nye:&lt;/p>
+&lt;!-- raw HTML omitted -->
+&lt;p>I think this system gives Furbish an ancient, almost otherwordly feel, as though it really were the language of some &amp;ldquo;cloud-riding&amp;rdquo; species from the stars. Regardless of the &amp;ldquo;faults&amp;rdquo; of the language design, certainly Hampton succeeded in designing a beloved and long-lasting toy. I certainly look back on Furby with good memories.&lt;/p>
+&lt;div class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1">
+&lt;p>Wired, “Moody Furballs And The Developers Who Love Them” by Scott Kirsner, Sept. 1998, &lt;a href="https://www.wired.com/1998/09/furby/">https://www.wired.com/1998/09/furby/&lt;/a>&amp;#160;&lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2">
+&lt;p>New York Times, “Far From the Pleading Crowd: Furby&amp;rsquo;s Dad” by Jacques Steinberg, Dec. 1998, &lt;a href="http://web.archive.org/web/20150527080927/https://www.nytimes.com/1998/12/10/nyregion/public-lives-far-from-the-pleading-crowd-furby-s-dad.html">http://web.archive.org/web/20150527080927/https://www.nytimes.com/1998/12/10/nyregion/public-lives-far-from-the-pleading-crowd-furby-s-dad.html&lt;/a>&amp;#160;&lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&amp;#160;&lt;a href="#fnref1:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:3">
+&lt;p>It has been argued that, since Japanese is a moraic language, its kana scripts are not syllabaries but rather moraic systems.&amp;#160;&lt;a href="#fnref:3" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/div></description></item><item><title>Stable Diffusion Gallery</title><link>https://dustinnewman.net/posts/stable-diffusion-gallery/</link><pubDate>Sat, 24 Sep 2022 18:17:58 -0700</pubDate><guid>https://dustinnewman.net/posts/stable-diffusion-gallery/</guid><description>&lt;p>I have been playing with &lt;a href="https://github.com/CompVis/stable-diffusion">Stable Diffusion&lt;/a> lately, as I am sure many have. I thought it would be worthwhile to publish some of my favorites along with the prompts and seeds for each image. All images have a &amp;ldquo;classifier free guidance (CFG) scale&amp;rdquo; (or simply &amp;ldquo;guidance&amp;rdquo;) value of 7.5; are 512 by 512 pixels; use the k_lms sampler; and use 50 steps. The seeds are marked after the prompt after the -S flag.&lt;/p>
 &lt;p>&amp;ldquo;Portrait of a green frog wearing a deep red velvet robe and golden crown, oil painting by Hyacinthe Rigaud, baroque, rich&amp;rdquo; -S3173279521
 &lt;img src="./frog_with_crown.png" alt="Frog wearing a crown">&lt;/p>
 &lt;p>&amp;ldquo;Impressionist painting of green frog with red eyes by Van Gogh, impressionist&amp;rdquo; -S4232807157
