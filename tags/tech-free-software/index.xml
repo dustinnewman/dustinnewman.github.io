@@ -133,11 +133,17 @@
 &lt;p>For example, the word “da” (big) would be written as ᛞ. I am using “Y” here to signify the aɪ diphthong used in English “bye” ([baɪ]). “E” represents close-mid front unrounded vowel ⟨e⟩ (used in “may”) and “I” represents the close front unrounded vowel ⟨i⟩ (used in “seat”).&lt;/p>
 &lt;p>Since these are a sky species, I thought it was fitting that their script be written vertically, top-down. In all examples, I will use this writing direction. First, the Furby wiki states that “how are you?” in Furbish is “oo-nye boe doo?” Using our orthography, we can write this as:&lt;/p>
 &lt;p>&amp;ldquo;How are you?&amp;rdquo; - oo-nye boe doo?:&lt;/p>
-&lt;!-- raw HTML omitted -->
+&lt;p style="writing-mode: vertical-lr; text-orientation: upright;">
+ᛟᚿ ᛈ ᛜ
+&lt;/p>
 &lt;p>&amp;ldquo;Big fun!&amp;rdquo; - Dah doo-ay wah!:&lt;/p>
-&lt;!-- raw HTML omitted -->
+&lt;p style="writing-mode: vertical-lr; text-orientation: upright;">
+ᛞ ᛜᛖ ᛡ
+&lt;/p>
 &lt;p>&amp;ldquo;Hey, I don&amp;rsquo;t see you&amp;rdquo; - Hey, kah-boo ay-ay u-nye:&lt;/p>
-&lt;!-- raw HTML omitted -->
+&lt;p style="writing-mode: vertical-lr; text-orientation: upright;">
+ᚺ ᚴᛔ ᛖᛖ ᚢᚿ
+&lt;/p>
 &lt;p>I think this system gives Furbish an ancient, almost otherwordly feel, as though it really were the language of some &amp;ldquo;cloud-riding&amp;rdquo; species from the stars. Regardless of the &amp;ldquo;faults&amp;rdquo; of the language design, certainly Hampton succeeded in designing a beloved and long-lasting toy. I certainly look back on Furby with good memories.&lt;/p>
 &lt;div class="footnotes" role="doc-endnotes">
 &lt;hr>
