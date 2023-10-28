@@ -164,6 +164,10 @@ main article header > div {
     font-size: 0.85em;
     color: var(--post-title);
 }
+/* Add some spacing between consecutive tables */
+main article table + table {
+    margin-top: 16px;
+}
 main img {
     max-width: 100%;
     margin: 0 auto;
@@ -215,4 +219,4 @@ footer {
         font-size: 1.1rem;
     }
 }
-    
+
