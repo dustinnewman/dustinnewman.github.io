@@ -1,4 +1,85 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>tech, free-software, evergreen on Dustin Newman</title><link>https://dustinnewman.net/tags/tech-free-software-evergreen/</link><description>Recent content in tech, free-software, evergreen on Dustin Newman</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 06 Jun 2022 22:24:16 -0700</lastBuildDate><atom:link href="https://dustinnewman.net/tags/tech-free-software-evergreen/index.xml" rel="self" type="application/rss+xml"/><item><title>Stable Diffusion Gallery</title><link>https://dustinnewman.net/posts/stable-diffusion-gallery/</link><pubDate>Sat, 24 Sep 2022 18:17:58 -0700</pubDate><guid>https://dustinnewman.net/posts/stable-diffusion-gallery/</guid><description>&lt;p>I have been playing with &lt;a href="https://github.com/CompVis/stable-diffusion">Stable Diffusion&lt;/a> lately, as I am sure many have. I thought it would be worthwhile to publish some of my favorites along with the prompts and seeds for each image. All images have a &amp;ldquo;classifier free guidance (CFG) scale&amp;rdquo; (or simply &amp;ldquo;guidance&amp;rdquo;) value of 7.5; are 512 by 512 pixels; use the k_lms sampler; and use 50 steps. The seeds are marked after the prompt after the -S flag.&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>tech, free-software, evergreen on Dustin Newman</title><link>https://dustinnewman.net/tags/tech-free-software-evergreen/</link><description>Recent content in tech, free-software, evergreen on Dustin Newman</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 06 Jun 2022 22:24:16 -0700</lastBuildDate><atom:link href="https://dustinnewman.net/tags/tech-free-software-evergreen/index.xml" rel="self" type="application/rss+xml"/><item><title>Farsi Ezafe Trick for L1 English Speakers</title><link>https://dustinnewman.net/posts/farsi-ezafe-trick/</link><pubDate>Sat, 28 Oct 2023 12:14:06 -0700</pubDate><guid>https://dustinnewman.net/posts/farsi-ezafe-trick/</guid><description>&lt;p>I recently came across a neat trick in &lt;em>Modern Persian&lt;/em> by Narguess Farzad (2004) for an intuition on the order of adjectives and possessives in Farsi (Iranian Persian). As an L1 English speaker, it can be difficult to get an intuition for the adjective order (postpositional) and how that works with the possessives in Farsi (also postpositional).&lt;/p>
+&lt;p>You simply write the English phrase as usual: left to right. Then underneath you write the Farsi translation: right to left. Because adjectives and possessives are postpositional, but Farsi is also written right to left, the two &amp;ldquo;reverse&amp;rdquo; and provide a simple way to get the correct word order in Farsi. Farzad provides the simple example:&lt;/p>
+&lt;table>
+&lt;tr>
+&lt;td>→&lt;/td>
+&lt;td>blue&lt;/td>
+&lt;td>pencil&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>آبی&lt;/td>
+&lt;td>مداد&lt;/td>
+&lt;td>←&lt;/td>
+&lt;/tr>
+&lt;/table>
+&lt;p>Because possessive adjectives follow attributive adjectives, this extends to genitive constructions as well:&lt;/p>
+&lt;table>
+&lt;tr>
+&lt;td>→&lt;/td>
+&lt;td>my&lt;/td>
+&lt;td>brother's&lt;/td>
+&lt;td>hand&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>من&lt;/td>
+&lt;td>برادر&lt;/td>
+&lt;td>دست&lt;/td>
+&lt;td>←&lt;/td>
+&lt;/tr>
+&lt;/table>
+&lt;p>And to multiple adjectives:&lt;/p>
+&lt;table>
+&lt;tr>
+&lt;td>→&lt;/td>
+&lt;td>cold&lt;/td>
+&lt;td>dark&lt;/td>
+&lt;td>night&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>سرد&lt;/td>
+&lt;td>تاریک&lt;/td>
+&lt;td>شب&lt;/td>
+&lt;td>←&lt;/td>
+&lt;/tr>
+&lt;/table>
+&lt;table>
+&lt;tr>
+&lt;td>→&lt;/td>
+&lt;td>my&lt;/td>
+&lt;td>Persian&lt;/td>
+&lt;td>book&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>من&lt;/td>
+&lt;td>فارسی&lt;/td>
+&lt;td>کتاب&lt;/td>
+&lt;td>←&lt;/td>
+&lt;/tr>
+&lt;/table>
+&lt;table>
+&lt;tr>
+&lt;td>→&lt;/td>
+&lt;td>Maryam's&lt;/td>
+&lt;td>Russian&lt;/td>
+&lt;td>friend&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>مریم&lt;/td>
+&lt;td>روسی&lt;/td>
+&lt;td>دوست&lt;/td>
+&lt;td>←&lt;/td>
+&lt;/tr>
+&lt;/table></description></item><item><title>Stable Diffusion Gallery</title><link>https://dustinnewman.net/posts/stable-diffusion-gallery/</link><pubDate>Sat, 24 Sep 2022 18:17:58 -0700</pubDate><guid>https://dustinnewman.net/posts/stable-diffusion-gallery/</guid><description>&lt;p>I have been playing with &lt;a href="https://github.com/CompVis/stable-diffusion">Stable Diffusion&lt;/a> lately, as I am sure many have. I thought it would be worthwhile to publish some of my favorites along with the prompts and seeds for each image. All images have a &amp;ldquo;classifier free guidance (CFG) scale&amp;rdquo; (or simply &amp;ldquo;guidance&amp;rdquo;) value of 7.5; are 512 by 512 pixels; use the k_lms sampler; and use 50 steps. The seeds are marked after the prompt after the -S flag.&lt;/p>
 &lt;p>&amp;ldquo;Portrait of a green frog wearing a deep red velvet robe and golden crown, oil painting by Hyacinthe Rigaud, baroque, rich&amp;rdquo; -S3173279521
 &lt;img src="./frog_with_crown.png" alt="Frog wearing a crown">&lt;/p>
 &lt;p>&amp;ldquo;Impressionist painting of green frog with red eyes by Van Gogh, impressionist&amp;rdquo; -S4232807157
