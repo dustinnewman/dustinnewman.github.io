@@ -1,6 +1,4 @@
 #!/bin/sh
-set -e
 
-hugo serve -D
-open http://localhost:1313/
+open http://localhost:1313/ & hugo serve -D
 

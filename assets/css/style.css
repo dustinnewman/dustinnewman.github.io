@@ -115,25 +115,25 @@ main hr {
 main abbr {
     cursor: help;
 }
-main ul#posts {
+main ul.content-list {
     list-style-type: none;
     font-size: 1.0rem;
     margin-top: 0;
     padding: 0;
 }
-main ul#posts li {
+main ul.content-list li {
     margin: 5px 0;
     padding: 0;
 }
-main ul#posts small {
+main ul.content-list small {
     font-size: 0.8em;
     color: var(--time-color);
     margin-left: 10px;
 }
-main ul#posts li a {
+main ul.content-list li a {
     text-decoration: none;
 }
-main ul#posts li a:hover {
+main ul.content-list li a:hover {
     color: var(--link-hover-color);
 }
 main article .message {
