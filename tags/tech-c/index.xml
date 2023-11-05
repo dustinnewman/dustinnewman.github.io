@@ -1,4 +1,113 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>tech, c on Dustin Newman</title><link>https://dustinnewman.net/tags/tech-c/</link><description>Recent content in tech, c on Dustin Newman</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 21 Jul 2021 06:03:00 -0700</lastBuildDate><atom:link href="https://dustinnewman.net/tags/tech-c/index.xml" rel="self" type="application/rss+xml"/><item><title>Farsi Ezafe Trick for L1 English Speakers</title><link>https://dustinnewman.net/posts/farsi-ezafe-trick/</link><pubDate>Sat, 28 Oct 2023 12:14:06 -0700</pubDate><guid>https://dustinnewman.net/posts/farsi-ezafe-trick/</guid><description>&lt;p>I recently came across a neat trick in &lt;em>Modern Persian&lt;/em> by Narguess Farzad (2004) for an intuition on the order of adjectives and possessives in Farsi (Iranian Persian). As an L1 English speaker, it can be difficult to get an intuition for the adjective order (postpositional) and how that works with the possessives in Farsi (also postpositional).&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>tech, c on Dustin Newman</title><link>https://dustinnewman.net/tags/tech-c/</link><description>Recent content in tech, c on Dustin Newman</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 21 Jul 2021 06:03:00 -0700</lastBuildDate><atom:link href="https://dustinnewman.net/tags/tech-c/index.xml" rel="self" type="application/rss+xml"/><item><title>Rust Trait Coherence</title><link>https://dustinnewman.net/posts/rust-trait-coherence/</link><pubDate>Sat, 04 Nov 2023 16:36:26 -0700</pubDate><guid>https://dustinnewman.net/posts/rust-trait-coherence/</guid><description>&lt;h2 id="the-background">The Background&lt;/h2>
+&lt;p>I defined a struct in a Rust project.&lt;/p>
+&lt;pre>&lt;code class="language-rust">struct Content
+&lt;/code>&lt;/pre>
+&lt;p>I then wanted an easy way to convert from different, other types into &lt;code>Content&lt;/code>, ideally staying within the Rust type system. My motivating example will be that you want to go from a file path to &lt;code>Content&lt;/code>. Since I am a good, active Rust user, I know that I don&amp;rsquo;t want to unnecessarily restrict my conversion function to only the concrete type &lt;code>Path&lt;/code> because the same logic applies to all sorts of &lt;code>Path&lt;/code>-like types e.g. &lt;code>PathBuf&lt;/code>, &lt;code>Components&lt;/code>, &lt;code>OsStr&lt;/code>, and even &lt;code>String&lt;/code>. So I implemented this trait generically.&lt;/p>
+&lt;pre>&lt;code class="language-rust">impl&amp;lt;P&amp;gt; TryFrom&amp;lt;P&amp;gt; for Content where P: AsRef&amp;lt;Path&amp;gt;
+&lt;/code>&lt;/pre>
+&lt;p>The compiler threw an error message. This in itself is not too surprising: compiler errors are the bread and butter of Rust programming. But this particular compiler error threw me off guard.&lt;/p>
+&lt;pre>&lt;code class="language-rust">conflicting implementation in crate `core`:
+- impl&amp;lt;T, U&amp;gt; TryFrom&amp;lt;U&amp;gt; for T
+where U: Into&amp;lt;T&amp;gt;;
+&lt;/code>&lt;/pre>
+&lt;p>This came as a bit of a shock to me because, well, I had just defined this struct &lt;code>Content&lt;/code>. How could Rust &lt;code>core&lt;/code> already have an implementation for it? To understand, we have to unpack what the generics in this type signature are really conveying. This type signature says that we have an implementation of &lt;code>TryFrom&lt;/code> &lt;em>from&lt;/em> any type &lt;code>&amp;lt;U&amp;gt;&lt;/code> &lt;em>for&lt;/em> any type &lt;code>&amp;lt;T&amp;gt;&lt;/code> if and only if &lt;code>&amp;lt;U&amp;gt;&lt;/code> already implements &lt;code>Into&amp;lt;T&amp;gt;&lt;/code>. Ok, when you put it like that, this actually seems quite reasonable. If we already have the logic to go from &lt;code>&amp;lt;U&amp;gt;&lt;/code> to &lt;code>&amp;lt;T&amp;gt;&lt;/code> infallibly, then surely we can represent this as a &amp;ldquo;fallible&amp;rdquo; operation, which simply returns &lt;code>Ok&lt;/code> all the time. And, in fact, when you look at the &lt;a href="https://github.com/rust-lang/rust/blob/f5ca57e153afaed818f8be88abf5ce46715c0f9a/library/core/src/convert/mod.rs#L800">Rust core source code&lt;/a>, this is exactly what it does.&lt;/p>
+&lt;pre>&lt;code class="language-rust">// Infallible conversions are semantically equivalent to fallible conversions
+// with an uninhabited error type.
+#[stable(feature = &amp;quot;try_from&amp;quot;, since = &amp;quot;1.34.0&amp;quot;)]
+impl&amp;lt;T, U&amp;gt; TryFrom&amp;lt;U&amp;gt; for T
+where
+U: Into&amp;lt;T&amp;gt;,
+{
+type Error = Infallible;
+#[inline]
+fn try_from(value: U) -&amp;gt; Result&amp;lt;Self, Self::Error&amp;gt; {
+Ok(U::into(value))
+}
+}
+&lt;/code>&lt;/pre>
+&lt;p>Put this way, this seems not just reasonable but obvious. Of course, this makes sense. The issue I still didn&amp;rsquo;t understand though was that, sure, for any type &lt;code>&amp;lt;U&amp;gt;&lt;/code> if &lt;code>&amp;lt;U&amp;gt;&lt;/code> implements &lt;code>Into&amp;lt;T&amp;gt;&lt;/code> you can use this logical, &amp;ldquo;blanket&amp;rdquo; implementation to kind of vacuously implement &lt;code>TryFrom&amp;lt;U&amp;gt; for T&lt;/code>, &lt;em>but&lt;/em> my issue was that &lt;em>my&lt;/em> &lt;code>&amp;lt;U&amp;gt;&lt;/code> (&lt;code>P: AsRef&amp;lt;Path&amp;gt;&lt;/code>) &lt;strong>doesn&amp;rsquo;t&lt;/strong> implement &lt;code>Into&amp;lt;Content&amp;gt;&lt;/code>. So, why is Rust having an issue with this? And to answer it, we have to go into Rust &lt;strong>trait coherence&lt;/strong>.&lt;/p>
+&lt;h2 id="trait-coherence">Trait Coherence&lt;/h2>
+&lt;p>Trait coherence is &amp;ldquo;&lt;a href="https://github.com/Ixrec/rust-orphan-rules/blob/4b2ccb102bd7c715c4dc2ec4bdeaa96c6662093c/README.md?plain=1#L9">the property that there is at most one implementation of a trait for any given type&lt;/a>.&amp;rdquo; So, for example, you cannot have:&lt;/p>
+&lt;pre>&lt;code class="language-rust">struct Content;
+impl Eq for Content
+impl Eq for Content
+&lt;/code>&lt;/pre>
+&lt;p>Once again, when presented like this, this seems reasonable. Despite my confusion, I have to agree that the Rust compiler is making a sane assumption here. The issue, however, quickly becomes more complicated once you allow generics and crates (i.e. third-party code and dependencies). There are two often cited rules to help the Rust compiler enforce trait coherence.&lt;/p>
+&lt;ol>
+&lt;li>The Orphan Rule: Either the trait or the type for which you are implementing the trait must be local to your crate&lt;/li>
+&lt;li>The Overlapping Rule: For any two types A and B implementing a trait T, A must be different from B&lt;/li>
+&lt;/ol>
+&lt;p>The orphan rule seems much more controversial and discussed online, but I believe my issue actually stems from the overlapping rule. Now, previously I gave an obviously wrong example to motivate why the Rust compiler even has a concept of trait coherence. But to motivate the overlapping rule, let&amp;rsquo;s give a &lt;a href="https://github.com/kennytm/rfcs/blob/a956323627bbc245dd3fe657f1dbc67060e77167/text/0000-negative-bounds.md">more realistic example&lt;/a> in order to steel-man the motivation. Let&amp;rsquo;s say that we have a trait to get the average of two numbers.&lt;/p>
+&lt;pre>&lt;code class="language-rust">trait Int {}
+trait Float {}
+trait Average {
+fn average(self, other: Self) -&amp;gt; Self;
+}
+&lt;/code>&lt;/pre>
+&lt;p>We can implement this for &lt;code>Int&lt;/code> types:&lt;/p>
+&lt;pre>&lt;code class="language-rust">impl&amp;lt;T: Int&amp;gt; Average for T {
+fn average(self, other: Self) -&amp;gt; Self {
+if self &amp;gt;= other {
+other + (self - other) / 2
+} else {
+self + (other - self) / 2
+}
+}
+}
+&lt;/code>&lt;/pre>
+&lt;p>And then for &lt;code>Float&lt;/code> types:&lt;/p>
+&lt;pre>&lt;code class="language-rust">impl&amp;lt;T: Float&amp;gt; Average for T {
+fn average(self, other: Self) -&amp;gt; Self {
+self * 0.5 + other * 0.5
+}
+}
+&lt;/code>&lt;/pre>
+&lt;p>Uh-oh! Compiler error. The same as before. &lt;code>conflicting implementations of trait Average&lt;/code>. But&amp;hellip; why? We don&amp;rsquo;t really have two &lt;em>conflicting&lt;/em> implementations, as we have &lt;em>two&lt;/em> implementations. It seems as though Rust is unnecessarily strict here since there is no issue yet. Well, you see, I actually sort of underplayed the overlapping rule earlier. It really should be&lt;/p>
+&lt;ol start="2">
+&lt;li>The Overlapping Rule: For any two types A and B implementing a trait T, A must be &lt;strong>provably&lt;/strong> different from B &lt;strong>in every possible program&lt;/strong>&lt;/li>
+&lt;/ol>
+&lt;p>This is called &lt;a href="https://aturon.github.io/blog/2017/04/24/negative-chalk/">&amp;ldquo;negative reasoning&amp;rdquo;&lt;/a>. It is essentially the difference between saying &amp;ldquo;there does not exist any type which implements a trait twice &lt;em>currently&lt;/em>&amp;rdquo; and &amp;ldquo;there will &lt;em>never&lt;/em> exist any type which implements a trait twice.&amp;rdquo; Hopefully now it is more clear what the actual issue is. There is nothing specifically &lt;strong>stopping&lt;/strong> a type from implementing &lt;strong>both&lt;/strong> &lt;code>Int&lt;/code> and &lt;code>Float&lt;/code>. In the absence of this guarantee, Rust errs on the side of caution.&lt;/p>
+&lt;p>But back to my original issue. You might recall that, unlike the previous example, there &lt;em>was no&lt;/em> more specific, conflicting example. I just wanted to implement&lt;/p>
+&lt;pre>&lt;code class="language-rust">impl&amp;lt;P&amp;gt; TryFrom&amp;lt;P&amp;gt; for Content where P: AsRef&amp;lt;Path&amp;gt;
+&lt;/code>&lt;/pre>
+&lt;p>It is not so much that there exists &amp;ldquo;two implementations&amp;rdquo; for &lt;code>TryFrom for Content&lt;/code>. It is moreso that currently Rust cannot guarantee that there will never be a type which satisfies two implementations. For example, if someone were to implement &lt;code>TryFrom&amp;lt;String&amp;gt;&lt;/code>.&lt;/p>
+&lt;pre>&lt;code class="language-rust">impl TryFrom&amp;lt;String&amp;gt; for Content
+&lt;/code>&lt;/pre>
+&lt;p>This would introduce two valid implementations: one for the generic type &lt;code>P: AsRef&amp;lt;Path&amp;gt;&lt;/code> (which &lt;code>String&lt;/code> satisfies) and another for the specific type &lt;code>String&lt;/code>. Similarly, you could imagine we have a trait to calculate the last modified time of a file path.&lt;/p>
+&lt;pre>&lt;code class="language-rust">trait LastModified {
+fn last_modified(&amp;amp;self) -&amp;gt; std::time::SystemTime;
+}
+&lt;/code>&lt;/pre>
+&lt;p>For all regular files, this is simple. Just take the modified time (&lt;code>mtime&lt;/code>).&lt;/p>
+&lt;pre>&lt;code class="language-rust">impl&amp;lt;P: AsRef&amp;lt;Path&amp;gt;&amp;gt; LastModified for P {
+fn last_modified(&amp;amp;self) -&amp;gt; std::time::SystemTime {
+fs::metadata(self.as_ref())
+.and_then(|metadata| metadata.modified())
+.unwrap_or(SystemTime::UNIX_EPOCH)
+}
+}
+&lt;/code>&lt;/pre>
+&lt;p>But for directories, the &lt;code>mtime&lt;/code> might not be exactly what we want. It most likely will be the last time a file or subdirectory was added or removed from the directory, rather than the last time a file or subdirectory was actually &lt;em>modified&lt;/em>. To fix this, we would have to make a special implementation just for directories.&lt;/p>
+&lt;pre>&lt;code class="language-rust">impl LastModified for ReadDir {
+fn last_modified(&amp;amp;self) -&amp;gt; std::time::SystemTime {
+self.filter_map(Result::ok)
+.map(|entry| entry.path())
+.filter_map(|path| fs::metadata(&amp;amp;path).ok())
+.filter_map(|metadata| metadata.modified().ok())
+.max()
+.unwrap_or(SystemTime::UNIX_EPOCH)
+}
+}
+&lt;/code>&lt;/pre>
+&lt;p>So which one to choose? Currently, there is no way, and doing so would require a feature called &amp;ldquo;specialization&amp;rdquo;.&lt;/p>
+&lt;p>There are a few options here:&lt;/p>
+&lt;ol>
+&lt;li>Extend Rust to supportive &amp;ldquo;negative&amp;rdquo; trait bounds (i.e. &lt;code>P: AsRef&amp;lt;Path&amp;gt; &amp;amp;! ContentNode: TryFrom&amp;lt;P&amp;gt;&lt;/code>) to allow the compiler to guarantee one implementation per type&lt;/li>
+&lt;li>Allow multiple implementations per type and design a mechanism for deciding between them (&amp;ldquo;specialization&amp;rdquo;)&lt;/li>
+&lt;li>Allow users to specify a crate locality condition that this crate will never be used by any other crate and thus we can bypass this condition just between us&lt;/li>
+&lt;li>Just use &lt;code>PathBuf&lt;/code> here instead of generics&lt;/li>
+&lt;/ol>
+&lt;p>For now, I&amp;rsquo;m sticking with number four.&lt;/p></description></item><item><title>Farsi Ezafe Trick for L1 English Speakers</title><link>https://dustinnewman.net/posts/farsi-ezafe-trick/</link><pubDate>Sat, 28 Oct 2023 12:14:06 -0700</pubDate><guid>https://dustinnewman.net/posts/farsi-ezafe-trick/</guid><description>&lt;p>I recently came across a neat trick in &lt;em>Modern Persian&lt;/em> by Narguess Farzad (2004) for an intuition on the order of adjectives and possessives in Farsi (Iranian Persian). As an L1 English speaker, it can be difficult to get an intuition for the adjective order (postpositional) and how that works with the possessives in Farsi (also postpositional).&lt;/p>
 &lt;p>You simply write the English phrase as usual: left to right. Then underneath you write the Farsi translation: right to left. Because adjectives and possessives are postpositional, but Farsi is also written right to left, the two &amp;ldquo;reverse&amp;rdquo; and provide a simple way to get the correct word order in Farsi. Farzad provides the simple example:&lt;/p>
 &lt;table>
 &lt;tr>
