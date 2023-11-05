@@ -103,7 +103,17 @@ Uh-oh! Compiler error. The same as before. `conflicting implementations of trait
 
 2. The Overlapping Rule: For any two types A and B implementing a trait T, A must be **provably** different from B **in every possible program**
 
-This is called ["negative reasoning"](https://aturon.github.io/blog/2017/04/24/negative-chalk/). It is essentially the difference between saying "there does not exist any type which implements a trait twice *currently*" and "there will *never* exist any type which implements a trait twice." Hopefully now it is more clear what the actual issue is. There is nothing specifically **stopping** a type from implementing **both** `Int` and `Float`. In the absence of this guarantee, Rust errs on the side of caution.
+This is called ["negative reasoning"](https://aturon.github.io/blog/2017/04/24/negative-chalk/). It is essentially the difference between saying "there does not exist any type which implements a trait twice *currently*" and "there will *never* exist any type which implements a trait twice." Hopefully now it is more clear what the actual issue is. There is nothing specifically **stopping** a type from implementing **both** `Int` and `Float`. In the absence of this guarantee, Rust errs on the side of caution. And to Rust's credit, this makes sense. Just look at the following, nothing seems wrong.
+
+```rust
+struct Real
+// Is this error?
+impl Int for Real
+// Or this?
+impl Float for Real
+```
+
+If the compiler instead decided to follow the approach I preferred (don't throw an error until a conflict actually exists), it would make implementating a trait an error. Not just an error, but a rather arbitrary error as well. In the example above, which implementation would you consider the "bad" one? There is no deterministic answer. This is not only unexpected, but would have breaking downstream consequences: a conflict may exist within other people's crates because of a trait conflict that does **not** exist on your system, but **does** exist on theirs. This would be a huge disaster for the Rust ecosystem of crates, not to mention seriously hinder Rust's changes of mainstream adoption. Looking at it from this perspective, it actually becomes clear why the Rust compiler decides to just play it safe and stop the problem at the root: a trait definition which could, theoretically, introduce an implementation conflict. This keeps the wider Rust ecosystem safe until a robust "fix"/solution is developed.
 
 But back to my original issue. You might recall that, unlike the previous example, there *was no* more specific, conflicting example. I just wanted to implement
 
