@@ -79,7 +79,7 @@ sudo mkdir /mnt/ext4
 sudo mount -t hfsplus -o force,rw $HFS_DISK_ID /mnt/hfsplus
 sudo mount $EXT_DISK_ID /mnt/ext4
 &lt;/code>&lt;/pre>
-&lt;p>Now the actual transfer. For this, I used &lt;code>rsync&lt;/code>. Note that for my 1.2 TB, this transfer took 20 hours. The extended length of this transfer also increases the likelihood of hardware failure, network failure (which happened to me twice during this process, thanks Xfinity), or power supply issues. Please take care to stabilize your system as much as possible.&lt;/p>
+&lt;p>Now the actual transfer. For this, I used &lt;code>rsync&lt;/code>. Note that for my 1.2 TB, this transfer took 20 hours. The extended length of this transfer also increases the likelihood of hardware failure, network failure (which happened to me twice during this process), or power supply issues. Please take care to stabilize your system as much as possible.&lt;/p>
 &lt;pre>&lt;code class="language-sh">sudo rsync -av /mnt/hfsplus/ /mnt/ext4/
 &lt;/code>&lt;/pre></description></item><item><title>Rust Trait Coherence</title><link>https://dustinnewman.net/posts/rust-trait-coherence/</link><pubDate>Sat, 04 Nov 2023 16:36:26 -0700</pubDate><guid>https://dustinnewman.net/posts/rust-trait-coherence/</guid><description>&lt;h2 id="the-background">The Background&lt;/h2>
 &lt;p>I defined a struct in a Rust project.&lt;/p>
