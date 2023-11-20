@@ -137,7 +137,7 @@ sudo mount -t hfsplus -o force,rw $HFS_DISK_ID /mnt/hfsplus
 sudo mount $EXT_DISK_ID /mnt/ext4
 ```
 
-Now the actual transfer. For this, I used `rsync`. Note that for my 1.2 TB, this transfer took 20 hours. The extended length of this transfer also increases the likelihood of hardware failure, network failure (which happened to me twice during this process, thanks Xfinity), or power supply issues. Please take care to stabilize your system as much as possible.
+Now the actual transfer. For this, I used `rsync`. Note that for my 1.2 TB, this transfer took 20 hours. The extended length of this transfer also increases the likelihood of hardware failure, network failure (which happened to me twice during this process), or power supply issues. Please take care to stabilize your system as much as possible.
 
 ```sh
 sudo rsync -av /mnt/hfsplus/ /mnt/ext4/
