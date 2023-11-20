@@ -1,6 +1,8 @@
 <h3>Pages</h3>
 <ul class="content-list">
-{{- range where site.RegularPages "Type" "in" site.Params.mainSections }}
-    {{ .Render "li" }}
+{{- range where site.RegularPages.ByLastmod.Reverse "Type" "not in" site.Params.mainSections }}
+    {{ if ne .Title "About" }}
+        {{ .Render "li" }}
+    {{ end }}
 {{- end }}
 </ul>

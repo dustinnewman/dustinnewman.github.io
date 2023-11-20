@@ -27,3 +27,6 @@ unsafe = true
     title = "about"
     url = "/about/"
     weight = 20
+
+[frontmatter]
+  lastmod = ["lastmod", ":fileModTime", ":default"]
