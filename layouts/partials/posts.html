@@ -1,6 +1,5 @@
-<h3>Posts</h3>
-<ul class="content-list">
+<h2>Posts</h2>
 {{- range where site.RegularPages "Type" "in" site.Params.mainSections }}
-    {{ .Render "li" }}
+<h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+<!-- {{ if .Date }}<p><em>- <time>{{ .Date.Format "Jan 2, 2006" }}</time></em></p>{{ end }} -->
 {{- end }}
-</ul>

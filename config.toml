@@ -16,15 +16,15 @@ unsafe = true
 [menu]
   [[menu.main]]
     identifier = "posts"
-    name = "posts"
-    title = "posts"
+    name = "Posts"
+    title = "Posts"
     url = "/"
     weight = 10
 
   [[menu.main]]
     identifier = "about"
-    name = "about"
-    title = "about"
+    name = "About"
+    title = "About"
     url = "/about/"
     weight = 20
 

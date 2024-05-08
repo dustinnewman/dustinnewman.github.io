@@ -1,13 +1,9 @@
 {{ define "main" }}
 <article>
-    <header>
-        <h1>{{ .Title }}</h1>
-            <div>
-            {{- if isset .Params "date" -}}
-                <time>{{ .Date.Format "January 2, 2006" }}</time>
-            {{- end -}}
-            </div>
-    </header>
+    <h1>{{ .Title }}</h1>
+    {{- if isset .Params "date" -}}
+    <p><em>{{ .Date.Format "January 2, 2006" }}</em></p>
+    {{- end -}}
     {{- .Content -}}
 </article>
 {{ end }}

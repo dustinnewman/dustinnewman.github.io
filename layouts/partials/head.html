@@ -11,8 +11,13 @@
     <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink }}" title="{{ $.Site.Title }}">
     {{ end -}}
 
-    {{ $css := (resources.Get "css/style.css") | minify }}
-    <link rel="stylesheet" href="{{ $css.RelPermalink }}">
+    {{ $normalize := resources.Get "css/normalize.css" }}
+    {{ $magick := resources.Get "css/magick.css" }}
+    <link rel="stylesheet" href="{{ $normalize.Permalink }}">
+    <link rel="stylesheet" href="{{ $magick.Permalink }}">
+
+    {{ $codelines := resources.Get "js/codelines.js" }}
+    <script defer language="javascript" type="text/javascript"  src="{{ $codelines.Permalink }}"></script>
 
     <title>{{ .Title }}</title>
 </head>
