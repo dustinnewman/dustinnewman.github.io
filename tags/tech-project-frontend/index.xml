@@ -1,87 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>tech, project, frontend on Dustin Newman</title><link>https://dustinnewman.net/tags/tech-project-frontend/</link><description>Recent content in tech, project, frontend on Dustin Newman</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 03 Apr 2022 19:44:12 -0700</lastBuildDate><atom:link href="https://dustinnewman.net/tags/tech-project-frontend/index.xml" rel="self" type="application/rss+xml"/><item><title>HFS+ to ext4</title><link>https://dustinnewman.net/posts/hfs-to-ext4/</link><pubDate>Mon, 13 Nov 2023 22:34:17 -0800</pubDate><guid>https://dustinnewman.net/posts/hfs-to-ext4/</guid><description>&lt;p>This is a straight-forward guide to copy a MacOS HFS+ filesystem partition to a Linux ext4 partition. When I looked online, I saw constant warnings and cautionary tales about how this is an inherently dangerous operation and you should never perform it. As I had a 5 TB hard drive sitting right in front me with only 1.2 TB used, the thought of purchasing a new hard drive because some risk is involved was ludicrous. After all, we are technologists. Transferring files from one file system to another should not raise so much handwringing.&lt;/p>
-&lt;p>That said, here is your one and only warning if you decide to follow this guide. Any time you work with important data (and I assume any data you follow this guide for is important), you should have a backup. Even in &lt;code>$CURRENT_YEAR&lt;/code>, there is always a risk with data corruption or some hardware failure which prevents successful data transfer. If you do not make a backup, you have to be okay with total data loss. If you have any further objections than this, I assume you then know enough to do it a better and safer way. Note that you must have at least as much free space on your drive as you do used space e.g. if you are using 1 TB of data, you must have 1 TB free as well. With that out of the way, let&amp;rsquo;s get started.&lt;/p>
-&lt;h2 id="on-your-mac">On your Mac&lt;/h2>
-&lt;p>First, plug in the hard drive to your Mac. You should see your disk show up in the output of the &lt;code>diskutil list&lt;/code> command.&lt;/p>
-&lt;pre>&lt;code class="language-sh">diskutil list
-/dev/disk0 (internal, physical):
-#: TYPE NAME SIZE IDENTIFIER
-...
-/dev/disk6 (external, physical):
-#: TYPE NAME SIZE IDENTIFIER
-0: GUID_partition_scheme *5.0 TB disk6
-1: EFI EFI 209.7 MB disk6s1
-2: Apple_HFS SEAGATE 5.0 TB disk6s2
-&lt;/code>&lt;/pre>
-&lt;p>In my case, I know I have a 5 TB hard drive, so it is listed as &lt;code>disk6&lt;/code>. We want to specifically deal with the &lt;code>disk6s2&lt;/code> partition. However, your disk will of course be different from mine. To avoid confusion, set the following shell variable, replacing the value with your disk identifier:&lt;/p>
-&lt;pre>&lt;code class="language-sh">export DISK_ID=&amp;lt;YOUR DISK PARTITION&amp;gt;
-# e.g. export DISK_ID=disk6s2
-&lt;/code>&lt;/pre>
-&lt;p>In my case, the entire 5 TB was allocated for the HFS+ file system. This is not going to work because I need two equal portions to transfer over the files: the existing one for HFS, and another one greater than or equal in size for ext4. So we have to resize the existing partition. If you have more than half your hard drive already used, &lt;strong>do not do this&lt;/strong>. &lt;strong>You will lose your data.&lt;/strong>&lt;/p>
-&lt;p>For disk utility to allow us to resize, we have to make sure journaling is enabled.&lt;/p>
-&lt;pre>&lt;code class="language-sh">diskutil enableJournal $DISK_ID
-&lt;/code>&lt;/pre>
-&lt;p>And now we can resize. In my case, I only had 1.2 TB occupied, so I will resize to 2 TB, making sure that we have enough space for the ext4 partition while not resulting in data loss of the existing HFS+ data.&lt;/p>
-&lt;pre>&lt;code class="language-sh">diskutil resizeVolume disk6s2 2T
-/dev/disk6 (external, physical):
-#: TYPE NAME SIZE IDENTIFIER
-0: GUID_partition_scheme *5.0 TB disk6
-1: EFI EFI 209.7 MB disk6s1
-2: Apple_HFS SEAGATE 2.0 TB disk6s2
-(free space) 3.0 TB -
-&lt;/code>&lt;/pre>
-&lt;p>Now we need to disable journaling.&lt;/p>
-&lt;pre>&lt;code class="language-sh">diskutil disableJournal disk6s2
-&lt;/code>&lt;/pre>
-&lt;p>And we can safely eject the drive. Note that we eject the entire disk, not the partition. Please replace the following with your actual disk.&lt;/p>
-&lt;pre>&lt;code class="language-sh">diskutil eject &amp;lt;YOUR DISK&amp;gt;
-# e.g. diskutil eject disk6
-&lt;/code>&lt;/pre>
-&lt;p>It is now time to unplug the disk from your Mac and plug it into your Linux device.&lt;/p>
-&lt;h2 id="on-linux">On Linux&lt;/h2>
-&lt;p>As always, make sure your system is up to date.&lt;/p>
-&lt;pre>&lt;code class="language-sh">sudo apt-get update
-&lt;/code>&lt;/pre>
-&lt;p>We need the &lt;code>hfsprogs&lt;/code> program to work with the HFS file system on Linux systems. As its &lt;a href="https://packages.ubuntu.com/jammy/hfsprogs">package page&lt;/a> states, &lt;code>hfsprogs&lt;/code> is &amp;ldquo;mkfs and fsck for HFS and HFS+ file systems&amp;rdquo;.&lt;/p>
-&lt;pre>&lt;code class="language-sh">sudo apt-get install hfsprogs
-&lt;/code>&lt;/pre>
-&lt;p>You now need to get the disk information for your drive.&lt;/p>
-&lt;pre>&lt;code class="language-sh">sudo fdisk -l
-Device Start End Sectors Size Type
-/dev/sda1 34 409633 409600 200M EFI System
-/dev/sda2 411648 9767541133 9767129486 2T HFS / HFS+
-&lt;/code>&lt;/pre>
-&lt;p>For this portion, I even more highly recommend using shell variables to avoid mistakes since we are actively working with two different filesystems here, whereas before we only had one.&lt;/p>
-&lt;pre>&lt;code class="language-sh">export HFS_DISK_ID=/dev/sda2
-&lt;/code>&lt;/pre>
-&lt;p>We check the integrity of the HFS+ filesystem with the &lt;code>fsck&lt;/code> from &lt;code>hfsprogs&lt;/code> (&lt;code>fsck.hfsplus&lt;/code>) and then unmount it, since it is never a good idea to operate on a mounted filesystem.&lt;/p>
-&lt;pre>&lt;code class="language-sh">sudo fsck.hfsplus $HFS_DISK_ID
-sudo umount $HFS_DISK_ID
-&lt;/code>&lt;/pre>
-&lt;p>Now time to finally create the new ext4 partition! We do this with the &lt;code>fdisk&lt;/code> command. &lt;code>fdisk&lt;/code> is used to manage disk partitions on Linux systems. It will open up a set of prompts requiring your input. I will list what to enter for each prompt.&lt;/p>
-&lt;pre>&lt;code class="language-sh">sudo fdisk /dev/sda
-&lt;/code>&lt;/pre>
-&lt;ul>
-&lt;li>Command should be &lt;code>n&lt;/code> for new partition&lt;/li>
-&lt;li>Partition number should be next after HFS partition, in my case, 3&lt;/li>
-&lt;li>Start can be default to start right after existing HFS partition&lt;/li>
-&lt;li>Size depends on your specifics. For me, it should be &lt;code>+2T&lt;/code> for 2 TB&lt;/li>
-&lt;li>&lt;code>w&lt;/code> to write the command to disk&lt;/li>
-&lt;/ul>
-&lt;p>Woohoo! Our partition is created. Store it in an environment variable.&lt;/p>
-&lt;pre>&lt;code class="language-sh">export EXT_DISK_ID=sda3
-&lt;/code>&lt;/pre>
-&lt;p>And now we need to actually make this partition use the ext4 filesystem.&lt;/p>
-&lt;pre>&lt;code class="language-sh">sudo mkfs.ext4 $EXT_DISK_ID
-&lt;/code>&lt;/pre>
-&lt;p>In order to do anything with these filesystems, we need to mount them. The mount directory paths can be anything you want, but for simplicity I&amp;rsquo;d recommend just following these unless you have a good reason. These are where the environment variables really come in handy to avoid mixups.&lt;/p>
-&lt;pre>&lt;code class="language-sh">sudo mkdir /mnt/hfsplus
-sudo mkdir /mnt/ext4
-sudo mount -t hfsplus -o force,rw $HFS_DISK_ID /mnt/hfsplus
-sudo mount $EXT_DISK_ID /mnt/ext4
-&lt;/code>&lt;/pre>
-&lt;p>Now the actual transfer. For this, I used &lt;code>rsync&lt;/code>. Note that for my 1.2 TB, this transfer took 20 hours. The extended length of this transfer also increases the likelihood of hardware failure, network failure (which happened to me twice during this process), or power supply issues. Please take care to stabilize your system as much as possible.&lt;/p>
-&lt;pre>&lt;code class="language-sh">sudo rsync -av /mnt/hfsplus/ /mnt/ext4/
-&lt;/code>&lt;/pre></description></item><item><title>Rust Trait Coherence</title><link>https://dustinnewman.net/posts/rust-trait-coherence/</link><pubDate>Sat, 04 Nov 2023 16:36:26 -0700</pubDate><guid>https://dustinnewman.net/posts/rust-trait-coherence/</guid><description>&lt;h2 id="the-background">The Background&lt;/h2>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Tech, Project, Frontend on Dustin Newman</title><link>https://dustinnewman.net/tags/tech-project-frontend/</link><description>Recent content in Tech, Project, Frontend on Dustin Newman</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 03 Apr 2022 19:44:12 -0700</lastBuildDate><atom:link href="https://dustinnewman.net/tags/tech-project-frontend/index.xml" rel="self" type="application/rss+xml"/><item><title>Rust Trait Coherence</title><link>https://dustinnewman.net/posts/rust-trait-coherence/</link><pubDate>Sat, 04 Nov 2023 16:36:26 -0700</pubDate><guid>https://dustinnewman.net/posts/rust-trait-coherence/</guid><description>&lt;h2 id="the-background">The Background&lt;/h2>
 &lt;p>I defined a struct in a Rust project.&lt;/p>
 &lt;pre>&lt;code class="language-rust">struct Content
 &lt;/code>&lt;/pre>
@@ -279,32 +196,71 @@ self.filter_map(Result::ok)
 &lt;td>←&lt;/td>
 &lt;/tr>
 &lt;/table></description></item><item><title>Stable Diffusion Gallery</title><link>https://dustinnewman.net/posts/stable-diffusion-gallery/</link><pubDate>Sat, 24 Sep 2022 18:17:58 -0700</pubDate><guid>https://dustinnewman.net/posts/stable-diffusion-gallery/</guid><description>&lt;p>I have been playing with &lt;a href="https://github.com/CompVis/stable-diffusion">Stable Diffusion&lt;/a> lately, as I am sure many have. I thought it would be worthwhile to publish some of my favorites along with the prompts and seeds for each image. All images have a &amp;ldquo;classifier free guidance (CFG) scale&amp;rdquo; (or simply &amp;ldquo;guidance&amp;rdquo;) value of 7.5; are 512 by 512 pixels; use the k_lms sampler; and use 50 steps. The seeds are marked after the prompt after the -S flag.&lt;/p>
-&lt;p>&amp;ldquo;Portrait of a green frog wearing a deep red velvet robe and golden crown, oil painting by Hyacinthe Rigaud, baroque, rich&amp;rdquo; -S3173279521
-&lt;img src="./frog_with_crown.png" alt="Frog wearing a crown">&lt;/p>
-&lt;p>&amp;ldquo;Impressionist painting of green frog with red eyes by Van Gogh, impressionist&amp;rdquo; -S4232807157
-&lt;img src="./van_gogh_frog_close.png" alt="Frog by Van Gogh">&lt;/p>
-&lt;p>&amp;ldquo;Impressionist painting of green frog with red eyes in grass meadow, by Van Gogh, impressionist&amp;rdquo; -S2854560348
-&lt;img src="./van_gogh_frog_meadow.png" alt="Frog in a meadow by Van Gogh">&lt;/p>
-&lt;p>&amp;ldquo;Portrait of a green frog wearing a deep red velvet robe and golden crown, oil painting by Hyacinthe Rigaud, baroque, rich&amp;rdquo; -S1372305360
-&lt;img src="./robed_frog.png" alt="Frog in robe">&lt;/p>
-&lt;p>&amp;ldquo;a matte painting of an old stone gothic castle on a cliff over the sea at night, creepy, dark, gothic, stormy, masterpiece, artstation&amp;rdquo; -S4153617768
-&lt;img src="./creepy_castle.png" alt="Creepy castle">&lt;/p>
-&lt;p>&amp;ldquo;Cozy house in the woods, anime, oil painting by Josef Thoma, high resolution, cottagecore, Studio Ghibli inspired, 4k&amp;rdquo; -S2819016467
-&lt;img src="./cottage.png" alt="Tree cottage">&lt;/p>
-&lt;p>&amp;ldquo;The sun and the moon, roman mosaic&amp;rdquo; -S3992813662
-&lt;img src="./sun_mosaic.png" alt="Sun and moon mosaic">&lt;/p>
-&lt;p>&amp;ldquo;A white ice palace with tall pillars and an ice throne in the center, by Josef Thoma, matte painting, detailed, 4k&amp;rdquo; -S3712115669
-&lt;img src="./ice_pillars.png" alt="Ice pillars">&lt;/p>
-&lt;p>&amp;ldquo;overgrown foliage overtaking tall destroyed buildings, biopunk, scenery, professional, award-winning, trending on artstation, detailed, realistic, beautiful, emotional, shiny, golden, picture, antview, close up&amp;rdquo; -S1483373964
-&lt;img src="./plants_dystopia.png" alt="Dystopia with plants">&lt;/p>
-&lt;p>&amp;ldquo;A beautiful mountain landscape on an ancient scroll, ink brush painting, traditional Chinese, by Ma Yuan&amp;rdquo; -S2983311206
-&lt;img src="./ink_brush_painting_mountains.png" alt="Ink brush painting of mountains">&lt;/p>
-&lt;p>&amp;ldquo;snow covered mountains in chinese watercolor painting, landscape, masterpiece, ancient&amp;rdquo; -S3991627781
-&lt;img src="./chinese_snow.png" alt="Snow covered mountains">&lt;/p>
-&lt;p>&amp;ldquo;two people in a snowy mountain village, snow falling from the sky, japanese watercolor painting, color and ink on scroll, by hokusai, landscape painting, masterpiece, ancient&amp;rdquo; -S2964261701
-&lt;img src="./japanese_snow.png" alt="Snowy mountain village">&lt;/p>
-&lt;p>&amp;ldquo;large persian mosque in the middle of waterfall in chinese watercolor painting, oil painting, masterpiece, aesthetic&amp;rdquo; -S392247870
-&lt;img src="./persian_waterfall.png" alt="Waterfall over stones">&lt;/p></description></item><item><title>Cascading Style S-Expressions</title><link>https://dustinnewman.net/posts/lisp-css/</link><pubDate>Sun, 03 Apr 2022 19:44:12 -0700</pubDate><guid>https://dustinnewman.net/posts/lisp-css/</guid><description>&lt;p>Since I first learned it, Lisp has fascinated me. Not enough to seriously use it beyond projects for college, mind you, but enough where - years later - I’m working on something completely random and the thought crosses my mind “It would be fun to implement this in Lisp,” especially using + as a function, same as any other, in full prefix notation, something even the noble and esteemed Haskell couldn’t seem to commit to. Beyond the simple grammar and elegance, there is something about Lisp which feels fundamental to computation itself, likely the similarity to lambda calculus, which actually &lt;em>is&lt;/em> fundamental to computation itself. Sadly, Lisp is rarely used much of anywhere nowadays except as a novelty or pet project. This is strange, considering that Brendan Eich was inspired by Scheme while designing JavaScript. You would think there would be a more direct influence.&lt;/p>
+&lt;figure>&lt;img src="./frog_with_crown.png"
+alt="Frog wearing a crown">&lt;figcaption>
+&lt;p>&lt;em>Portrait of a green frog wearing a deep red velvet robe and golden crown, oil painting by Hyacinthe Rigaud, baroque, rich&lt;/em> -S3173279521&lt;/p>
+&lt;/figcaption>
+&lt;/figure>
+&lt;figure>&lt;img src="./van_gogh_frog_close.png"
+alt="Frog by Van Gogh">&lt;figcaption>
+&lt;p>&lt;em>Impressionist painting of green frog with red eyes by Van Gogh, impressionist&lt;/em> -S4232807157&lt;/p>
+&lt;/figcaption>
+&lt;/figure>
+&lt;figure>&lt;img src="./van_gogh_frog_meadow.png"
+alt="Frog in a meadow by Van Gogh">&lt;figcaption>
+&lt;p>&lt;em>Impressionist painting of green frog with red eyes in grass meadow, by Van Gogh, impressionist&lt;/em> -S2854560348&lt;/p>
+&lt;/figcaption>
+&lt;/figure>
+&lt;figure>&lt;img src="./robed_frog.png"
+alt="Frog in robe">&lt;figcaption>
+&lt;p>&lt;em>Portrait of a green frog wearing a deep red velvet robe and golden crown, oil painting by Hyacinthe Rigaud, baroque, rich&lt;/em> -S1372305360&lt;/p>
+&lt;/figcaption>
+&lt;/figure>
+&lt;figure>&lt;img src="./creepy_castle.png"
+alt="Creepy castle">&lt;figcaption>
+&lt;p>&lt;em>a matte painting of an old stone gothic castle on a cliff over the sea at night, creepy, dark, gothic, stormy, masterpiece, artstation&lt;/em> -S4153617768&lt;/p>
+&lt;/figcaption>
+&lt;/figure>
+&lt;figure>&lt;img src="./cottage.png"
+alt="Tree cottage">&lt;figcaption>
+&lt;p>&lt;em>Cozy house in the woods, anime, oil painting by Josef Thoma, high resolution, cottagecore, Studio Ghibli inspired, 4k&lt;/em> -S2819016467&lt;/p>
+&lt;/figcaption>
+&lt;/figure>
+&lt;figure>&lt;img src="./sun_mosaic.png"
+alt="Sun and moon mosaic">&lt;figcaption>
+&lt;p>&lt;em>The sun and the moon, roman mosaic&lt;/em> -S3992813662&lt;/p>
+&lt;/figcaption>
+&lt;/figure>
+&lt;figure>&lt;img src="./ice_pillars.png"
+alt="Ice pillars">&lt;figcaption>
+&lt;p>&lt;em>A white ice palace with tall pillars and an ice throne in the center, by Josef Thoma, matte painting, detailed, 4k&lt;/em> -S3712115669&lt;/p>
+&lt;/figcaption>
+&lt;/figure>
+&lt;figure>&lt;img src="./plants_dystopia.png"
+alt="Dystopia with plants">&lt;figcaption>
+&lt;p>&lt;em>overgrown foliage overtaking tall destroyed buildings, biopunk, scenery, professional, award-winning, trending on artstation, detailed, realistic, beautiful, emotional, shiny, golden, picture, antview, close up&lt;/em> -S1483373964&lt;/p>
+&lt;/figcaption>
+&lt;/figure>
+&lt;figure>&lt;img src="./ink_brush_painting_mountains.png"
+alt="Ink brush painting of mountains">&lt;figcaption>
+&lt;p>&lt;em>A beautiful mountain landscape on an ancient scroll, ink brush painting, traditional Chinese, by Ma Yuan&lt;/em> -S2983311206&lt;/p>
+&lt;/figcaption>
+&lt;/figure>
+&lt;figure>&lt;img src="./chinese_snow.png"
+alt="Snow covered mountains">&lt;figcaption>
+&lt;p>&lt;em>snow covered mountains in chinese watercolor painting, landscape, masterpiece, ancient&lt;/em> -S3991627781&lt;/p>
+&lt;/figcaption>
+&lt;/figure>
+&lt;figure>&lt;img src="./japanese_snow.png"
+alt="Snowy mountain village">&lt;figcaption>
+&lt;p>&lt;em>two people in a snowy mountain village, snow falling from the sky, japanese watercolor painting, color and ink on scroll, by hokusai, landscape painting, masterpiece, ancient&lt;/em> -S2964261701&lt;/p>
+&lt;/figcaption>
+&lt;/figure>
+&lt;figure>&lt;img src="./persian_waterfall.png"
+alt="Waterfall over stones">&lt;figcaption>
+&lt;p>&lt;em>large persian mosque in the middle of waterfall in chinese watercolor painting, oil painting, masterpiece, aesthetic&lt;/em> -S392247870&lt;/p>
+&lt;/figcaption>
+&lt;/figure></description></item><item><title>Cascading Style S-Expressions</title><link>https://dustinnewman.net/posts/lisp-css/</link><pubDate>Sun, 03 Apr 2022 19:44:12 -0700</pubDate><guid>https://dustinnewman.net/posts/lisp-css/</guid><description>&lt;p>Since I first learned it, Lisp has fascinated me. Not enough to seriously use it beyond projects for college, mind you, but enough where - years later - I’m working on something completely random and the thought crosses my mind “It would be fun to implement this in Lisp,” especially using + as a function, same as any other, in full prefix notation, something even the noble and esteemed Haskell couldn’t seem to commit to. Beyond the simple grammar and elegance, there is something about Lisp which feels fundamental to computation itself, likely the similarity to lambda calculus, which actually &lt;em>is&lt;/em> fundamental to computation itself. Sadly, Lisp is rarely used much of anywhere nowadays except as a novelty or pet project. This is strange, considering that Brendan Eich was inspired by Scheme while designing JavaScript. You would think there would be a more direct influence.&lt;/p>
 &lt;p>Fortunately for us, it doesn’t have to be that way. I have long thought of writing CSS is a Lisp-style syntax. I’m not sure why exactly. Something about it just &lt;em>feels&lt;/em> right. Simple. For maximum confusion, I have decided to name this &lt;strong>Cascading Style S-Expressions&lt;/strong>: CSS for short.&lt;/p>
 &lt;p>Now, I’m not gonna claim that we can bring Lisp to the web. Lisp’s acolytes are a devout and proud people, who would scoff at the claim that CSS properties and markup even come close to represent the power and beauty of Lisp. And this is correct on some level. CSS is a language for configuration, not computation. There are no functions, no inputs or outputs, no arithmetic, none of that. Just a bunch of key-value pairs.&lt;/p>
 &lt;p>That said, I’m gonna do it anyways because, like I said, it’s fun. There are some parts of Lisp which fit nicely with CSS. The nesting of S-expressions is a cleaner way to combine selectors; the extremely simple syntax (the only special characters are parentheses) eschews semicolons, colons, and braces; and honestly something about CSS has just always felt Lisp-y to me. But mostly this is just for fun and an itch being scratched. The quintessential example, what every CSS tutorial starts with, is setting the background-color of the body element.&lt;/p>
