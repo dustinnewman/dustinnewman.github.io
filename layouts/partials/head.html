@@ -19,5 +19,9 @@
     {{ $codelines := resources.Get "js/codelines.js" }}
     <script defer language="javascript" type="text/javascript"  src="{{ $codelines.Permalink }}"></script>
 
+    {{ if .Param "math" }}
+    {{ partialCached "math.html" . }}
+    {{ end }}
+
     <title>{{ .Title }}</title>
 </head>

@@ -6,12 +6,18 @@ pygmentsCodeFences = false
 pygmentsUseClasses = false
 
 [markup.goldmark.renderer]
-unsafe = true
+  unsafe = true
+[markup.goldmark.extensions.passthrough]
+  enable = true
+[markup.goldmark.extensions.passthrough.delimiters]
+  block = [['$$', '$$']]
+  inline = [['$', '$']]
 
 [params]
   description = "Dustin Newman's blog"
   dark = "auto"
   highlight = false
+  math = true
 
 [menu]
   [[menu.main]]
