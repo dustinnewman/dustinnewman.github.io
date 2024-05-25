@@ -1,4 +1,138 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Tags on Dustin Newman</title><link>https://dustinnewman.net/tags/</link><description>Recent content in Tags on Dustin Newman</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 04 Nov 2023 16:36:26 -0700</lastBuildDate><atom:link href="https://dustinnewman.net/tags/index.xml" rel="self" type="application/rss+xml"/><item><title>Rust Trait Coherence</title><link>https://dustinnewman.net/posts/rust-trait-coherence/</link><pubDate>Sat, 04 Nov 2023 16:36:26 -0700</pubDate><guid>https://dustinnewman.net/posts/rust-trait-coherence/</guid><description>&lt;h2 id="the-background">The Background&lt;/h2>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Tags on Dustin Newman</title><link>https://dustinnewman.net/tags/</link><description>Recent content in Tags on Dustin Newman</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 04 Nov 2023 16:36:26 -0700</lastBuildDate><atom:link href="https://dustinnewman.net/tags/index.xml" rel="self" type="application/rss+xml"/><item><title>Linear Regression Bias</title><link>https://dustinnewman.net/posts/linear-regression-bias/</link><pubDate>Fri, 24 May 2024 16:25:25 -0700</pubDate><guid>https://dustinnewman.net/posts/linear-regression-bias/</guid><description>&lt;p>This post aims to show the impact and importance of the bias term in linear regression models. Linear regression models take the form&lt;/p>
+$$
+\hat{y} = \beta_{0} + \sum_{j=1}^{p} \beta_{j} X_{j}
+$$
+&lt;p>for inputs $X_{1}, \ldots, X_{p}$ (i.e. there are $p$ features).&lt;/p>
+&lt;p>I will be using the &lt;a href="https://www.kaggle.com/datasets/yasserh/housing-prices-dataset/data">Kaggle housing prices dataset&lt;/a> as a simple example, despite the collinearity of the data. We&amp;rsquo;ll start by getting the data&lt;/p>
+&lt;pre>&lt;code class="language-python">import numpy as np
+import pandas as pd
+data = pd.read_csv(DATA_PATH)
+&lt;/code>&lt;/pre>
+&lt;p>Some basic preprocessing:&lt;/p>
+&lt;pre>&lt;code class="language-python"># Transform categorical data
+data = pd.get_dummies(data, drop_first=True, dtype=int)
+Y = data['price']
+X = data.drop('price', axis=1)
+# Standardize
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+X = pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
+&lt;/code>&lt;/pre>
+&lt;p>And then we add the bias term to $X$&lt;/p>
+&lt;pre>&lt;code class="language-python">X['bias'] = 1
+X, Y = X.to_numpy(), Y.to_numpy()
+&lt;/code>&lt;/pre>
+&lt;p>Now we will compute the coefficients $\beta$ analytically using the Normal Equation&lt;/p>
+$$
+\beta = (X^{T}X)^{-1} X^{T} y
+$$
+&lt;p>and then use the coefficient vector to calculate $\hat{y}$ and the mean squared error&lt;/p>
+&lt;pre>&lt;code class="language-python">beta = np.linalg.inv(X.T.dot(X)).dot(X.T).dot(Y)
+Yhat = X.dot(beta)
+mse = np.mean((Yhat - Y) ** 2)
+&lt;/code>&lt;/pre>
+&lt;p>Now, we will see what happens when we follow the same procedure but without adding the bias term. All other steps remain the same.&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Coefficient&lt;/th>
+&lt;th>With bias&lt;/th>
+&lt;th>Without bias&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Area&lt;/td>
+&lt;td>529330.60363747&lt;/td>
+&lt;td>529330.60363747&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Bedrooms&lt;/td>
+&lt;td>84642.78885355&lt;/td>
+&lt;td>84642.78885355&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Bathrooms&lt;/td>
+&lt;td>495817.70908537&lt;/td>
+&lt;td>495817.70908537&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Stories&lt;/td>
+&lt;td>390748.2656748&lt;/td>
+&lt;td>390748.2656748&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Parking&lt;/td>
+&lt;td>238532.39119855&lt;/td>
+&lt;td>238532.39119855&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Main road&lt;/td>
+&lt;td>146735.42974425&lt;/td>
+&lt;td>146735.42974425&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Guest room&lt;/td>
+&lt;td>114950.32935761&lt;/td>
+&lt;td>114950.32935761&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Basement&lt;/td>
+&lt;td>167040.77163767&lt;/td>
+&lt;td>167040.77163767&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Hot water&lt;/td>
+&lt;td>178965.10323907&lt;/td>
+&lt;td>178965.10323907&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>A/C&lt;/td>
+&lt;td>401991.91011608&lt;/td>
+&lt;td>401991.91011608&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Preferred area&lt;/td>
+&lt;td>276197.74367233&lt;/td>
+&lt;td>276197.74367233&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Semi-furnished&lt;/td>
+&lt;td>-22847.00683726&lt;/td>
+&lt;td>-22847.00683726&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Unfurnished&lt;/td>
+&lt;td>-192857.24250658&lt;/td>
+&lt;td>-192857.24250658&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Bias&lt;/td>
+&lt;td>4766729.24770643&lt;/td>
+&lt;td>&lt;em>N/A&lt;/em>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>And we can see the significant improvement in the mean squared error:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>&lt;/th>
+&lt;th>With bias&lt;/th>
+&lt;th>Without bias&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Mean squared error&lt;/td>
+&lt;td>1111187722284.4001&lt;/td>
+&lt;td>23832895443224.234&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>A 21x improvement! The plot comparing the two is even more enlightening.&lt;/p>
+&lt;p>&lt;img src="plot.png" alt="A graph plotting the biased versus unbiased predictions for the dataset">&lt;/p>
+&lt;p>You can literally see the intercept term at work &amp;ldquo;lifting&amp;rdquo; the predictions and why it makes such a simple, yet impressive difference in the performance of the model.&lt;/p></description></item><item><title>Rust Trait Coherence</title><link>https://dustinnewman.net/posts/rust-trait-coherence/</link><pubDate>Sat, 04 Nov 2023 16:36:26 -0700</pubDate><guid>https://dustinnewman.net/posts/rust-trait-coherence/</guid><description>&lt;h2 id="the-background">The Background&lt;/h2>
 &lt;p>I defined a struct in a Rust project.&lt;/p>
 &lt;pre>&lt;code class="language-rust">struct Content
 &lt;/code>&lt;/pre>
