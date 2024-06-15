@@ -1,5 +1,8 @@
-<h2>Pages</h2>
-{{- range where site.RegularPages.ByLastmod.Reverse "Type" "not in" site.Params.mainSections }}
+{{ $pages := where site.RegularPages.ByLastmod.Reverse "Type" "not in" site.Params.mainSections}}
+{{ if gt (len $pages) 1 }}
+    <h2>Pages</h2>
+{{ end }}
+{{- range $pages }}
     {{ if ne .Title "About" }}
         <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
     {{ end }}
