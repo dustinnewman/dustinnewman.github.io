@@ -19,7 +19,7 @@ loss_d = BCELoss(fake_predictions, 0) + BCELoss(real_predictions, 1)
 loss_g = BCELoss(fake_predictions, 1)
 &lt;/code>&lt;/pre>
 &lt;p>I did not actually implement the original GAN architecture using fully-connected layers from this paper on the CelebA dataset since, by the time of writing this, several iterations of improvements are already standard and produce much better results. However, it is actually quite instructive to use this architecture on simpler datasets to get an intuition for some of the dynamics and results being produced here. I first trained a simple two fully-connected layer GAN using a training set of 10,000 samples from the unit normal distribution (mean 0, standard deviation 1) with a 10,000 dimension noise vector for 10,000 epochs. I want to show the progression of generated data first so you can see what the gist is.&lt;/p>
-&lt;video width="640" height="480" loop mute controls>
+&lt;video width="100%" height="auto" loop mute controls playsinline>
 &lt;source src="./normgan_distribution_dark.mp4" type="video/mp4" />
 &lt;/video>
 &lt;p>You can see that the generated data starts off centered at zero and then quickly begins oscillating around the mean, coming back towards the mean and then back around again for a couple thousand epochs. However, then around epoch 3,000 the generator starts matching the training distribution rather accurately. I like this GIF because it really captures the &amp;ldquo;game&amp;rdquo; aspect of GAN training. After around epoch 7,000, the generated data starts doing a little dance and cheer, oscillating slightly around the mean. The generator and discriminator really are playing a game, with one gaining the upper-hand slightly and the other reacting quickly thereafter. Matching up the epochs show above with the loss dynamics is also illuminating.&lt;/p>
@@ -188,11 +188,11 @@ $$
 w = \arg \min_{\mathbf{w^*}} \mathcal{L}(G(\mathbf{w^*}), I)
 $$
 &lt;p>I chose an image of a frog because it is roughly the same shape and dimensions as a shell (short, round), with some textured skin and somewhat natural coloring. Also, as described earlier, the green shells were my favorite so I wanted more of those. Below is the progress video of the optimization process, trying to find the $w$ vector and display $G(w)$ at each step (out of 1,000).&lt;/p>
-&lt;video width="512" height="256" loop mute controls>
+&lt;video width="100%" height="auto" loop mute controls playsinline>
 &lt;source src="./projection_frog.mp4" type="video/mp4" />
 &lt;/video>
 &lt;p>I also tried an eye for similar reasons. It also has a similar black background with one object in the center focus.&lt;/p>
-&lt;video width="512" height="256" loop mute controls>
+&lt;video width="100%" height="auto" loop mute controls playsinline>
 &lt;source src="./projection_eye.mp4" type="video/mp4" />
 &lt;/video>
 &lt;h2 id="conclusion">Conclusion&lt;/h2>
