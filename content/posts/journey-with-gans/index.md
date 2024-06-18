@@ -6,6 +6,8 @@ draft: true
 
 My first foray into generative models begins with generative adversarial models (or **GANs**). Introduced in 2014 by Ian Goodfellow et al. [^1], GANs quickly gained popularity for their ability to generate high quality, diverse, high-dimensional data samples. As you will soon see, however, the emphasis here is very much on "ability to," and not "tendency to," for GANs are notoriously sensitive to hyperparameters, often become unstable during training due to their adversarial nature, and are prone to vanishing gradients. Luckily, the generative capability of these models inspired an equally impressive volume of research and experimentation on how to mitigate these challenges and improve the performance of GANs for some truly amazing results.
 
+For all experiments here (except [ShellGAN](#shellgan)), I used the [CelebA](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) dataset: 200k 178 x 218 pixels images of celebrities. The full dataset is labelled, but I was only interested in unsupervised learning here.
+
 ## GAN Overview
 
 GANs are composed of two models: the generator model and the discriminator model. The generator *generates* samples from the underlying distribution of the training data, while the discriminator *discriminates* between real samples from the training data and fake samples produced by the generator. The basic idea is to train the two models simultaneously, so that both improve together at similar rates. The training is adversarial because the generator's goal is to fool the discriminator with convincing fake samples, while the discriminator's goal is to determine which samples are from the data and which are generated. Ian Goodfellow uses the following analogy:
@@ -30,7 +32,19 @@ for real_images in data:
     loss_g = BCELoss(fake_predictions, 1)
 ```
 
-I did not actually implement the original GAN architecture using fully-connected layers from this paper since, by the time of writing this, several iterations of improvements are already standard and produce much better results.
+I did not actually implement the original GAN architecture using fully-connected layers from this paper on the CelebA dataset since, by the time of writing this, several iterations of improvements are already standard and produce much better results. However, it is actually quite instructive to use this architecture on simpler datasets to get an intuition for some of the dynamics and results being produced here. I first trained a simple two fully-connected layer GAN using a training set of 10,000 samples from the unit normal distribution (mean 0, standard deviation 1) with a 10,000 dimension noise vector for 10,000 epochs. I want to show the progression of generated data first so you can see what the gist is.
+
+<video width="640" height="480" loop mute controls>
+    <source src="./normgan_distribution_dark.mp4" type="video/mp4" />
+</video>
+
+You can see that the generated data starts off centered at zero and then quickly begins oscillating around the mean, coming back towards the mean and then back around again for a couple thousand epochs. However, then around epoch 3,000 the generator starts matching the training distribution rather accurately. I like this GIF because it really captures the "game" aspect of GAN training. After around epoch 7,000, the generated data starts doing a little dance and cheer, oscillating slightly around the mean. The generator and discriminator really are playing a game, with one gaining the upper-hand slightly and the other reacting quickly thereafter. Matching up the epochs show above with the loss dynamics is also illuminating.
+
+![Loss functions of the generator and discriminator in vanilla GAN](normgan_loss_dark.png)
+
+Again, the adversarial aspects of the generator and discriminator are reflected in the loss functions, almost looking like a sin-cosine wave pair in the beginning. When the generator starts improving and generating better fakes, the discriminator's loss goes up. It then improves via gradient-descent, reducing its loss until the point where the generator starts improving, and so on until the two reach convergence. Note that convergence in GANs means the generator and discriminator each converge to their own separate loss value, not the same loss value. Correlating from earlier, just around epoch 3,000 was when the generator started performing noticeably better to the human eye, and sure enough, the loss function reflects that, converging right around epoch 3,000. And then when the distribution starts oscillating and "cheering" around epoch 7,000, you can see the norm of the gradients starts increasing, causing larger updates to the model weights, causing larger oscillations.
+
+An interesting point to note that underscores GANs' instability is that the model actually starts performing *worse* after reaching a optimum around epoch 6,000. After that, the gradient updates increase and both the generator and discriminator models start having higher highs and lower lows in their loss scores.
 
 ## DCGAN
 
@@ -50,7 +64,7 @@ The deep convolutional GAN (**DCGAN**) is where I actually started my experiment
 | Discriminator feature maps | 100    |
 | Image size                 | 64     |
 
-For all experiments here (except [ShellGAN](#shellgan)), I used the [CelebA](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) dataset: 200k 178 x 218 pixels images of celebrities. The full dataset is labelled, but I did not use them. As mentioned above, I used the implementation described by the paper authors for this, which you can view below.
+As mentioned above, I used the model architecture described by the paper authors for this.
 
 ```python
 generator = nn.Sequential(
@@ -140,15 +154,23 @@ For my next step, eager to get SOTA results, I actually skipped past WGAN and wa
 
 For running StyleGAN2, my M1 MacBook Pro simply wouldn't cut it. I needed real GPU power, the least of which for CUDA support to actually run [Nvidia's implementation of StyleGAN2](https://github.com/NVlabs/stylegan2-ada-pytorch). I used the implemention with adaptive instance normalization (`AdaIN`) for even better results. [^5] All GPUs used for this post were rented from [Vast.ai](https://vast.ai). I initially had some trouble since I was using the default image `pytorch/pytorch:latest` instead of the image specifically with CUDA/NVCC support `pytorch/pytorch:2.2.0-cuda12.1-cudnn8-devel`. You will notice that both images (at least at the time of writing) use PyTorch **2** where Nvidia's implementation uses PyTorch 1.7.1. Unfortunately, this proved to be an issue for me, as I could not get Nvidia's mainline to work. Fortunately, there was [a fork](https://github.com/woctezuma/stylegan2-ada-pytorch.git) to add support for PyTorch 2 from Github user `woctezuma`. Thank you, `woctezuma`.
 
-Even after sorting the runtime and environment issues out, however, all was not well. Due to my several attempts at training at this point, I had caused the Google Drive host for the CelebA dataset to reach its quota for 24 hours. After waiting until it was freed up again, now `torchvision` was causing some issue (likely due to the version on my instance being outdated) where the Google Drive response would not be the data, but rather a virus scan page stating that Google could not verify the integrity of the data and asking if I wanted to proceed. Unfortunately, `torchvision` offered no support to accept this prompt, so I had to upload my local copy of CelebA to the instance, which added an extra 30 minutes to my rental time.
+Even after sorting the runtime and environment issues out, however, all was not well. Due to my several attempts at training at this point, I had caused the Google Drive host for the CelebA dataset to reach its quota for 24 hours. After waiting until it was freed up again, now `torchvision` was causing some issue (likely due to the version on my instance being outdated) where the Google Drive response would not be the data, but rather a virus scan page stating that Google could not verify the integrity of the data and asking if I wanted to proceed.
+
+```
+/opt/conda/lib/python3.10/site-packages/torchvision/datasets/utils.py:260:
+UserWarning: We detected some HTML elements in the downloaded file. This most likely means that the download triggered an unhandled API response by GDrive. 
+Please report this to torchvision at https://github.com/pytorch/vision/issues including the response:
+```
+
+Unfortunately, `torchvision` offered no support to accept this prompt, so I had to upload my local copy of CelebA to the instance, which added an extra 30 minutes to my rental time.
 
 This issue really highlights some of the specific challenges with ML workloads that are not faced in typical programming: it is not only that the computation required is many times more expensive, but also that the data sizes involved are also larger (thus running into network bandwidth limitations). This breaks the usual classification of programs into either "I/O-bound" or "compute-bound" processes, since ML training is both! (Not to even mention storage-bound.) And because there is a very real chance of exhausting system resources, this makes frequent check-pointing all the more important. You should checkpoint any and all information needed to restart without issue: epoch, step, loss history, and of course the model weights themselves.
 
-Now, I have cherry-picked the results from this round because I did not quite anticipate how much disk space StyleGAN2 would take and training unfortunately had to end after only 2,400/25,000 images. And, due to running out of disk space, the final checkpoint was incomplete and thus corrupted. To compensate, I have taken some editorial discretion in selecting the following samples.
+After running for 5,000 kimg and 20.5 hours, the (cherry-picked) results are below.
 
 ![A grid of 16 celebrity faces](stylegan2.jpg)
 
-The countless optimizations that make up StyleGAN2 are too extensive to relate here, but if you are interested, I strongly recommend the paper. With a training time of 14 hours and at a GPU rental cost of \\$0.475 per hour, the total cost for training this round was \\$6.65. Not bad!
+The countless optimizations that make up StyleGAN2 are too extensive to relate here, but if you are interested, I strongly recommend the paper. With a training time of 20.5 hours and at a GPU rental cost of \\$0.475 per hour, the total cost for training this round was \\$9.74. Not bad!
 
 ## ShellGAN
 
@@ -166,11 +188,46 @@ I found it helpful to, instead of scraping the site, traversing and downloading 
 
 ### Training
 
-TODO
+I ran the training loop for 4,600 kimg for 25 hours using 1 Nvidia RTX 3090 GPU with 72 GB of disk storage for the considerable dataset size. Seeing as my raw dataset was 300 x 300 pixel images, it was quite natural to rescale to 256 pixels. However, I did have to truncate the full dataset slightly from 202,736 images to only 200,000 due to GPU RAM constraints. Given the scale of the dataset, this was acceptable. Learning from my previous experience training on CelebA, I made sure to allocate adequate resources for this run, in both memory and disk space. You might have noticed that I terminated slightly earlier than the 5,000 kimg mentioned by Nvidia as a reasonable stopping point. This is because, as I suspected, the shell images were far easier to get "reasonable" results from than Nvidia's facial datasets, so I was already more than satisfied by the 4,600 kimg mark.
 
 ### Results
 
-TODO
+After a long string of questionable results with GANs on CelebA, I am pleased to say that "ShellGAN" performed exactly as envisioned. These are the results picked from the 4,600 kimg tick.
+
+![Grid of generated shell images](shellgan.jpg)
+
+And some additional seed generation close-ups. Unfortunately, I wasn't able to reproduce a green shell, which was my favorite color from the results.
+
+<figure>
+    <img src="./shellgan_seed0078.png">
+    <figcaption>Seed 78</figcaption>
+</figure>
+
+<figure>
+    <img src="./shellgan_seed0375.png">
+    <figcaption>Seed 375</figcaption>
+</figure>
+
+<figure>
+    <img src="./shellgan_seed21313.png">
+    <figcaption>Seed 21313</figcaption>
+</figure>
+
+Nvidia also provided some really cool, easy to use projection capabilities in their StyleGAN2 repo. Projection is taking a given input image and finding some latent space vector which, when passed through the generator, produces a similar image according to some metric. For this implementation, Nvidia chose to use VGG16 perceptual loss, which is a standard convolutional neural network (CNN) architecture that gained a lot of popularity after release. Given some image $I$, we want to find a latent space vector $w$ such that
+
+$$
+w = \arg \min_{\mathbf{w^*}} \mathcal{L}(G(\mathbf{w^*}), I)
+$$
+
+I chose an image of a frog because it is roughly the same shape and dimensions as a shell (short, round), with some textured skin and somewhat natural coloring. Also, as described earlier, the green shells were my favorite so I wanted more of those. Below is the progress video of the optimization process, trying to find the $w$ vector and display $G(w)$ at each step (out of 1,000).
+
+<video width="512" height="256" loop mute controls>
+    <source src="./projection_frog.mp4" type="video/mp4" />
+</video>
+
+## Conclusion
+
+As my first foray into generative models, these experiments were not just highly enlightening but really fun. It is an amazing blend of technical challenges with immediately interpretable visual results which is exciting, especially to motivate you through numerous PyTorch or CUDA errors. As amazing as these results were, however, GANs are still really only the first step in the generative model journey for me. Next, I will be experimenting with diffusion models which have produced some astounding results and address many of the problems from GANs.
 
 [^1]: Goodfellow, Ian J., Jean Pouget-Abadie, Mehdi Mirza, Bing Xu, David Warde-Farley, Sherjil Ozair, Aaron C. Courville, and Yoshua Bengio. "Generative adversarial nets". *Advances in neural information processing systems* 27 (2014). [https://arxiv.org/pdf/1406.2661](https://arxiv.org/pdf/1406.2661)
 [^2]: Radford, Alec, Luke Metz, and Soumith Chintala. "Unsupervised representation learning with deep convolutional generative adversarial networks." *arXiv preprint arXiv:1511.06434* (2015). [https://arxiv.org/pdf/1511.06434](https://arxiv.org/pdf/1511.06434)
