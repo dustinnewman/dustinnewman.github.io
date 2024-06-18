@@ -34,7 +34,7 @@ for real_images in data:
 
 I did not actually implement the original GAN architecture using fully-connected layers from this paper on the CelebA dataset since, by the time of writing this, several iterations of improvements are already standard and produce much better results. However, it is actually quite instructive to use this architecture on simpler datasets to get an intuition for some of the dynamics and results being produced here. I first trained a simple two fully-connected layer GAN using a training set of 10,000 samples from the unit normal distribution (mean 0, standard deviation 1) with a 10,000 dimension noise vector for 10,000 epochs. I want to show the progression of generated data first so you can see what the gist is.
 
-<video width="640" height="480" loop mute controls>
+<video width="100%" height="auto" loop mute controls playsinline>
     <source src="./normgan_distribution_dark.mp4" type="video/mp4" />
 </video>
 
@@ -221,13 +221,13 @@ $$
 
 I chose an image of a frog because it is roughly the same shape and dimensions as a shell (short, round), with some textured skin and somewhat natural coloring. Also, as described earlier, the green shells were my favorite so I wanted more of those. Below is the progress video of the optimization process, trying to find the $w$ vector and display $G(w)$ at each step (out of 1,000).
 
-<video width="512" height="256" loop mute controls>
+<video width="100%" height="auto"  loop mute controls playsinline>
     <source src="./projection_frog.mp4" type="video/mp4" />
 </video>
 
 I also tried an eye for similar reasons. It also has a similar black background with one object in the center focus.
 
-<video width="512" height="256" loop mute controls>
+<video width="100%" height="auto"  loop mute controls playsinline>
     <source src="./projection_eye.mp4" type="video/mp4" />
 </video>
 
