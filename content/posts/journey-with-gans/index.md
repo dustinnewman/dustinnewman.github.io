@@ -1,7 +1,7 @@
 ---
 title: "Journey With GANs"
-date: 2024-06-04T22:35:36-07:00
-draft: true
+date: 2024-06-18T12:35:36-07:00
+draft: false
 ---
 
 My first foray into generative models begins with generative adversarial models (or **GANs**). Introduced in 2014 by Ian Goodfellow et al. [^1], GANs quickly gained popularity for their ability to generate high quality, diverse, high-dimensional data samples. As you will soon see, however, the emphasis here is very much on "ability to," and not "tendency to," for GANs are notoriously sensitive to hyperparameters, often become unstable during training due to their adversarial nature, and are prone to vanishing gradients. Luckily, the generative capability of these models inspired an equally impressive volume of research and experimentation on how to mitigate these challenges and improve the performance of GANs for some truly amazing results.
@@ -223,6 +223,12 @@ I chose an image of a frog because it is roughly the same shape and dimensions a
 
 <video width="512" height="256" loop mute controls>
     <source src="./projection_frog.mp4" type="video/mp4" />
+</video>
+
+I also tried an eye for similar reasons. It also has a similar black background with one object in the center focus.
+
+<video width="512" height="256" loop mute controls>
+    <source src="./projection_eye.mp4" type="video/mp4" />
 </video>
 
 ## Conclusion
