@@ -1,4 +1,63 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Dustin Newman</title><link>https://dustinnewman.net/posts/</link><description>Recent content in Posts on Dustin Newman</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 04 Jun 2024 22:35:36 -0700</lastBuildDate><atom:link href="https://dustinnewman.net/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>Linear Regression Bias</title><link>https://dustinnewman.net/posts/linear-regression-bias/</link><pubDate>Fri, 24 May 2024 16:25:25 -0700</pubDate><guid>https://dustinnewman.net/posts/linear-regression-bias/</guid><description>&lt;p>This post aims to show the impact and importance of the bias term in linear regression models. Linear regression models take the form&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Dustin Newman</title><link>https://dustinnewman.net/posts/</link><description>Recent content in Posts on Dustin Newman</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 17 Jun 2024 22:42:50 -0700</lastBuildDate><atom:link href="https://dustinnewman.net/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>Remove Duplicates 2</title><link>https://dustinnewman.net/posts/remove-duplicates-2/</link><pubDate>Mon, 17 Jun 2024 22:42:50 -0700</pubDate><guid>https://dustinnewman.net/posts/remove-duplicates-2/</guid><description>&lt;p>I have recently been brushing up on some interview prep with LeetCode. For one of the problems, despite only being a &amp;ldquo;medium&amp;rdquo; difficulty, I came up with an interesting solution that pulled from my experience developing cellular firmware that I would like to share. It is very common when dealing with frequency ranges for radio frequency (RF) bands and that these ranges are organized in tables. It is also common for special rules or regulations to apply when dealing with the &amp;ldquo;edge&amp;rdquo; ranges of these bands. For example, if we have band 1, it might have a low and high edge that has a lower or higher maximum transmissible power.&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Band&lt;/th>
+&lt;th>Frequency&lt;/th>
+&lt;th>Edge?&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>1&lt;/td>
+&lt;td>10&lt;/td>
+&lt;td>Yes&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>1&lt;/td>
+&lt;td>11&lt;/td>
+&lt;td>No&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>1&lt;/td>
+&lt;td>12&lt;/td>
+&lt;td>No&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>1&lt;/td>
+&lt;td>13&lt;/td>
+&lt;td>Yes&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>2&lt;/td>
+&lt;td>20&lt;/td>
+&lt;td>No&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>3&lt;/td>
+&lt;td>24&lt;/td>
+&lt;td>No&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>A common way to identify these edge regions is to compare the current band with the previous and next bands. If both the previous and next bands are the same as the current, then we are in an edge region. Else, we aren&amp;rsquo;t. Then you can add some special handling for the first and last regions in the table, etc.&lt;/p>
+&lt;p>Now, the LeetCode problem is to remove duplicates from an array of integers, but allow up to two duplicates for any given value. So if you had the array &lt;code>[1,1,1,2,2,3]&lt;/code>, the output would be &lt;code>[1,1,2,2,3]&lt;/code>. On the face of it, this has nothing to do with the frequency range concept I just described. However, I have always visualized the edge region filtering as a sort of &amp;ldquo;catching the wave.&amp;rdquo; Basically, if we turn our table into an array of only the band numbers, we can denote the start of the band with a forward slash / and the end of the band with a backwards slash. Non-edge regions will be denoted with a dash -.&lt;/p>
+&lt;pre>&lt;code> / - - \ / /
+[1,1,1,1,2,3]
+&lt;/code>&lt;/pre>
+&lt;p>Note the slight difference from the table earlier. Here, when we first see a new band number, we somewhat optimistically label it the &amp;ldquo;rising edge&amp;rdquo; of the band.&lt;/p>
+&lt;p>My key insight was realizing that removing the duplicates with an allowance of two actually reduced to &amp;ldquo;catching the wave.&amp;rdquo; We want to take only the rising and falling edges of the frequency bands. This allowed me to apply both my RF knowledge and the corresponding embedded programming knowledge (where every byte counts) to come up with a quite minimal C++ solution.&lt;/p>
+&lt;pre>&lt;code class="language-cpp">int removeDuplicates(vector&amp;lt;int&amp;gt;&amp;amp; nums) {
+int k = 1;
+for (size_t i = 1; i &amp;lt; nums.size(); i++) {
+if (nums[i] != nums[i - 1] || i == nums.size() - 1 || nums[i] != nums[i + 1]) {
+nums[k++] = nums[i];
+}
+}
+return k;
+}
+&lt;/code>&lt;/pre>
+&lt;p>where &lt;code>k&lt;/code> denotes the length of the de-duplicated array. (Don&amp;rsquo;t judge me for using a signed integer for the return value. LeetCode forced the interface on me.) We initialize it to 1 to reflect the fact that every non-empty array (LeetCode guaranteed the arrays would be non-empty) will contain at least 1 element. We then iterate through the array and &amp;ldquo;catch the waves&amp;rdquo;: if the current element is not equal to the previous or next elements, then we have either the rising or falling edges. And then there is an additional check for the final element of the array which should always be included (either because it is the falling edge of a run or because it is unique).&lt;/p></description></item><item><title>Linear Regression Bias</title><link>https://dustinnewman.net/posts/linear-regression-bias/</link><pubDate>Fri, 24 May 2024 16:25:25 -0700</pubDate><guid>https://dustinnewman.net/posts/linear-regression-bias/</guid><description>&lt;p>This post aims to show the impact and importance of the bias term in linear regression models. Linear regression models take the form&lt;/p>
 $$
 \hat{y} = \beta_{0} + \sum_{j=1}^{p} \beta_{j} X_{j}
 $$
