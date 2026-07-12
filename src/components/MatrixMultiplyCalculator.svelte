@@ -354,7 +354,7 @@
 </div>
 
 <p class="hint">
-  Edit cells directly, or type a whole matrix into A or B. You can see the corresponding rows and columns for the output by hovering over each output cell.
+  Edit cells directly, or type a whole matrix into A or B. You can see the corresponding rows and columns for the output by hovering (or tapping on) over each output cell.
 </p>
 
 <style>
@@ -417,7 +417,7 @@
     color: inherit;
     background: transparent;
     border: none;
-    border-bottom: 1px solid color-mix(in srgb, currentColor 40%, transparent);
+    border-bottom: 1px solid transparent;
     padding: 0.1rem 0;
   }
   .matmul td input:focus {
