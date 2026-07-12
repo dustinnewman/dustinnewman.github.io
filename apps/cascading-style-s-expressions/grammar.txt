@@ -1,0 +1,10 @@
+s_expr = "(" selector { rule | s_expr } ")"
+letter = "a..z" | "A..Z"
+digit = "0..9"
+selector = { letter | digit | ":" | "." }
+rule = property value
+property = { letter | digit | "-" }
+alphanumeric = letter | digit | "-"
+simple_value = alphanumeric { alphanumeric | "(" | ")" }
+value = simple_value | "(" { simple_value | " " } ")"
+

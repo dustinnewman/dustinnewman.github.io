@@ -1,0 +1,16 @@
+[package]
+name = "css"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "css"
+path = "src/lib.rs"
+crate-type = ["cdylib", "lib"]
+
+[[bin]]
+name = "css"
+path = "src/bin.rs"
+
+[dependencies]
+wasm-bindgen = "0.2"

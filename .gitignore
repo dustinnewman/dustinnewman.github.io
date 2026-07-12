@@ -1,3 +1,6 @@
-.hugo_build.lock
 .DS_Store
-public
+node_modules
+dist
+.astro
+public/cascading-style-s-expressions/pkg
+apps/cascading-style-s-expressions/target

@@ -1,0 +1,46 @@
+---
+import '../styles/normalize.css';
+import '../styles/magick.css';
+
+const SITE_TITLE = 'Dustin Newman';
+const { title = SITE_TITLE, description = "Dustin Newman's blog" } = Astro.props;
+
+const menu = [
+  { name: 'Posts', url: '/' },
+  { name: 'About', url: '/about/' },
+];
+---
+
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content={description}>
+
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+        <link rel="alternate" type="application/rss+xml" href="/index.xml" title={SITE_TITLE}>
+
+        <script src="../scripts/codelines.js"></script>
+
+        <title>{title}</title>
+    </head>
+    <body>
+        <main>
+            <header>
+                <h1><a href="/">{SITE_TITLE}</a></h1>
+                <nav>
+                    <ul>
+                        {menu.map((item) => (
+                            <li>
+                                <a href={item.url} title={item.name}>{item.name}</a>
+                            </li>
+                        ))}
+                    </ul>
+                </nav>
+            </header>
+            <slot />
+        </main>
+        <footer></footer>
+    </body>
+</html>

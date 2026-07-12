@@ -1,4 +1,3 @@
 #!/bin/sh
 
-open http://localhost:1313/ & hugo serve -D
-
+open http://localhost:4321/ & npm run dev
