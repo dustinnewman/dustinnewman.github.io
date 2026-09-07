@@ -1,6 +1,5 @@
 .DS_Store
 node_modules
 dist
-.astro
-public/cascading-style-s-expressions/pkg
+static/cascading-style-s-expressions/pkg
 apps/cascading-style-s-expressions/target

@@ -1,0 +1,16 @@
+prop kind = ""
+<div class={"matrix " + kind}><table><tbody><slot /></tbody></table></div>
+<style>
+.matrix { position: relative; padding: 0.3rem 1rem; display: inline-block; }
+.matrix::before, .matrix::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0.7rem;
+  border-top: 2px solid var(--fg, currentColor);
+  border-bottom: 2px solid var(--fg, currentColor);
+}
+.matrix::before { left: 0; border-left: 2px solid var(--fg, currentColor); }
+.matrix::after { right: 0; border-right: 2px solid var(--fg, currentColor); }
+</style>

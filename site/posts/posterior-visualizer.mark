@@ -1,0 +1,47 @@
+prop title = "Posterior Visualizer"
+prop date = "2026-09-04"
+Bayes' rule is four symbols and a horizontal line, and I have never once found
+that enough to see what it *does*. So here is the whole thing taken apart: a
+coin with unknown bias $\theta$, a handful of flips, and every term of the rule
+laid out in the order you would actually compute it.
+
+Play with it. Drag $\theta$ and watch the likelihood row rewrite itself. Flip a
+coin from heads to tails and watch the posterior slide left. Widen the prior and
+watch the data take over.
+
+Three things are worth noticing:
+
+- The **likelihood** is not a distribution over $\theta$. It is a number you get
+  by picking a $\theta$ and asking how well it explains the flips you have. That
+  is why it is computed here rather than set.
+- The **evidence** $p(X)$ is one number. It does not depend on $\theta$, so
+  dividing by it can only rescale the curve — it can never move the peak. All of
+  the *shape* of the posterior comes from prior $\times$ likelihood.
+- With a Beta prior the posterior is Beta again, and the update is just
+  counting: $\alpha$ gains a head, $\beta$ gains a tail. Conjugacy is the reason
+  the picture stays this clean.
+
+<Posterior />
+
+The prior here is $\mathrm{Beta}(\alpha, \beta)$ because it is the natural
+distribution over a probability. It lives on $[0, 1]$, it is flat when
+$\alpha = \beta = 1$, and it can be pushed toward either end or squeezed toward
+the middle with two knobs. A Gaussian cannot do that without leaking probability
+past the ends of the interval.
+
+The likelihood assumes the flips are independent given $\theta$, so it is the
+product $\theta^h (1-\theta)^t$ over the $h$ heads and $t$ tails. Note that $X$
+is the *sequence* of flips, not the count, so there is no binomial coefficient
+out front. It would cancel in the ratio anyway.
+
+The evidence is the integral of that product against the prior, and for a Beta
+prior it has a closed form:
+
+$$
+p(X) = \int_0^1 \theta^{h}(1-\theta)^{t}\, p(\theta)\, \mathrm{d}\theta
+     = \frac{B(\alpha + h,\, \beta + t)}{B(\alpha,\, \beta)}
+$$
+
+so nothing on this page is a numerical approximation. Put those together and the
+posterior is $\mathrm{Beta}(\alpha + h,\, \beta + t)$ — the same curve, redrawn
+with the counts folded in.

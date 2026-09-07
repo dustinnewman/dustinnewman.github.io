@@ -1,0 +1,15 @@
+prop title = "Cascading Style S-Expressions"
+# Cascading Style S-Expressions
+Write your CSS in Lisp-style S-expressions. The first entry in an S-expression is its selector (e.g. element name, class, ID, even commas are supported for multiple targets). From there, you can have CSS rules (properties are the same as always, values can be single strings or - if they contain a space - enclosed with parentheses) and nested children. All your updates in the input box will be parsed and then applied to this page dynamically using the power of WASM. All [source code](https://github.com/dustinnewman/dustinnewman.github.io/tree/master/apps/cascading-style-s-expressions) is on GitHub.
+
+<p class="textarea-label">Input</p>
+<textarea id="input"></textarea>
+<p class="textarea-label">Output</p>
+<textarea id="output"></textarea>
+<p class="textarea-label">Preview (All elements below are enclosed in an <code>article</code> div.)</p>
+<article>
+# Style me! (I'm an h1)
+## Me too! (I'm an h2)
+I am a sample paragraph.
+</article>
+<script type="module" src="/cascading-style-s-expressions/app.js"></script>

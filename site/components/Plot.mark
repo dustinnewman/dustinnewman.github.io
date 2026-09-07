@@ -1,0 +1,43 @@
+// Display-only plot over theta in [0, 1]. `curves` is a fixed list of {cls, line, area?, dashed?, hidden?, dot?}
+// (path strings in a 640x190 viewBox); `marker` is theta's x in the same units. The SVG stretches to fill its box,
+// so the tick labels and dots are HTML placed by percentage.
+prop curves = []
+prop marker = 0
+<div class="plot">
+<svg class="canvas" viewBox="0 0 640 190" preserveAspectRatio="none" aria-hidden="true">
+for c in curves key c.cls {
+<path class={"area " + c.cls} class="hidden" if c.hidden || !c.area d={c.area || ""} />
+}
+<line class="axis" x1="12" y1="160" x2="628" y2="160" />
+<line class="marker" x1={marker} y1="160" x2={marker} y2="12" />
+for c in curves key c.cls {
+<path class={"line " + c.cls} class="dashed" if c.dashed class="hidden" if c.hidden d={c.line} />
+}
+</svg>
+for t in [0, 0.5, 1] {
+<span class="tick-label" style={{left: (12 + t * 616) / 6.4 + "%"}}>{t}</span>
+}
+for c in curves key c.cls {
+if c.dot != null {
+<span class={"dot " + c.cls} class="hidden" if c.hidden style={{left: marker / 6.4 + "%", top: c.dot + "%"}}></span>
+}
+}
+</div>
+<style>
+.plot { position: relative; width: 100%; height: 20rem; margin: 1.2rem 0 0.4rem; }
+.canvas { display: block; position: absolute; inset: 0; width: 100%; height: 100%; }
+.hidden { display: none; }
+.tick-label { position: absolute; top: 84.2%; transform: translate(-50%, 0.5rem); font-size: 1.3rem; opacity: 0.65; }
+.dot { position: absolute; width: 1rem; height: 1rem; border-radius: 50%; border: 2px solid var(--bg); transform: translate(-50%, -50%); }
+.dot.prior { background: var(--blue); }
+.dot.post, .dot.joint { background: var(--purple); }
+path.line { fill: none; stroke-width: 2.5; vector-effect: non-scaling-stroke; }
+path.line.dashed { stroke-width: 1.75; stroke-dasharray: 5 5; }
+path.area { stroke: none; opacity: 0.18; }
+.prior { stroke: var(--blue); fill: var(--blue); }
+.like { stroke: var(--red); fill: var(--red); }
+.post, .joint { stroke: var(--purple); fill: var(--purple); }
+.axis { stroke: var(--fg); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.marker { stroke: var(--fg); stroke-width: 1; stroke-dasharray: 3 4; vector-effect: non-scaling-stroke; }
+@media (max-width: 600px) { .plot { height: 17rem; } }
+</style>

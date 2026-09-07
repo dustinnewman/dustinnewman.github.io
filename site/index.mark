@@ -1,0 +1,6 @@
+## Pages
+### [Cascading Style S-Expressions](/cascading-style-s-expressions)
+## Posts
+for p in Site.under("/posts").sort((a, b) => b.date.localeCompare(a.date)) key p.path {
+### [{p.title}]({p.path})
+}
