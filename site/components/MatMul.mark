@@ -19,8 +19,8 @@ var flightId = 0
 let FLY_MS = env.reducedMotion ? 0 : 650
 let conformable = a[0].length == b.length
 let product = conformable
-  ? a.map(row => b[0].map((_, j) => row.reduce((s, v, k) => s + Number(v) * Number(b[k][j]), 0)))
-  : null
+? a.map(row => b[0].map((_, j) => row.reduce((s, v, k) => s + Number(v) * Number(b[k][j]), 0)))
+: null
 let total = a.length * b[0].length
 let cur = phase == "idle" ? null : {i: step % a.length, j: Math.floor(step / a.length)}
 let label = phase == "idle" ? "Compute" : phase == "done" ? "Restart" : "Next"
@@ -30,174 +30,174 @@ fn shown(i, j) = phase == "idle" || cellStep(i, j) < step || (cellStep(i, j) == 
 
 // ---- parsing (derived, not event-driven) ----
 fn parseMatrix(text) {
-let v = try(JSON.parse(text), null)
-if !Array.isArray(v) || v.length == 0 {
-return null
-}
-if v.every(x => Number.isFinite(x)) {
-return [v]
-}
-let w = Array.isArray(v[0]) ? v[0].length : 0
-return w > 0 && v.every(r => Array.isArray(r) && r.length == w && r.every(Number.isFinite)) ? v : null
+  let v = try(JSON.parse(text), null)
+  if !Array.isArray(v) || v.length == 0 {
+    return null
+  }
+  if v.every(x => Number.isFinite(x)) {
+    return [v]
+  }
+  let w = Array.isArray(v[0]) ? v[0].length : 0
+  return w > 0 && v.every(r => Array.isArray(r) && r.length == w && r.every(Number.isFinite)) ? v : null
 }
 let aParsed = parseMatrix(aText.trim())
 let bParsed = parseMatrix(bText.trim())
 let aError = aTouched && aText.trim() != "" && aParsed == null
 let bError = bTouched && bText.trim() != "" && bParsed == null
 fn apply(which, m) {
-reset()
-if which == "a" {
-a = m
-} else {
-b = m
-}
+  reset()
+  if which == "a" {
+    a = m
+  } else {
+    b = m
+  }
 }
 
 // ---- geometry ----
 fn cellRect(sel) = measure(root.querySelector(sel), root)
 fn columnStrip(col) {
-let cells = b.map((_, k) => cellRect("[data-cell=b-" + k + "-" + col + "]"))
-let first = cells[0]
-let last = cells[cells.length - 1]
-return {x: first.x, y: first.y, w: first.w, h: last.y + last.h - first.y, values: b.map(r => Number(r[col]))}
+  let cells = b.map((_, k) => cellRect("[data-cell=b-" + k + "-" + col + "]"))
+  let first = cells[0]
+  let last = cells[cells.length - 1]
+  return {x: first.x, y: first.y, w: first.w, h: last.y + last.h - first.y, values: b.map(r => Number(r[col]))}
 }
 fn rowBox(i) {
-let first = cellRect("[data-cell=a-" + i + "-0]")
-let last = cellRect("[data-cell=a-" + i + "-" + (a[0].length - 1) + "]")
-return {cx: (first.x + last.x + last.w) / 2, cy: first.y + first.h / 2, w: last.x + last.w - first.x, h: first.h}
+  let first = cellRect("[data-cell=a-" + i + "-0]")
+  let last = cellRect("[data-cell=a-" + i + "-" + (a[0].length - 1) + "]")
+  return {cx: (first.x + last.x + last.w) / 2, cy: first.y + first.h / 2, w: last.x + last.w - first.x, h: first.h}
 }
 fn stripFlight(kind, col, fromRow, toRow) {
-let strip = columnStrip(col)
-let place = row => row == null
+  let strip = columnStrip(col)
+  let place = row => row == null
   ? {x: strip.x, y: strip.y, r: 0, w: strip.w, h: strip.h}
   : (box => ({x: box.cx - box.h / 2, y: box.cy - box.w / 2, r: -90, w: box.h, h: box.w}))(rowBox(row))
-let f = place(fromRow)
-let t = place(toRow)
-return {key: kind + "-" + col, values: strip.values,
-        x0: f.x, y0: f.y, r0: f.r, w0: f.w, h0: f.h, x1: t.x, y1: t.y, r1: t.r, w1: t.w, h1: t.h}
+  let f = place(fromRow)
+  let t = place(toRow)
+  return {key: kind + "-" + col, values: strip.values,
+    x0: f.x, y0: f.y, r0: f.r, w0: f.w, h0: f.h, x1: t.x, y1: t.y, r1: t.r, w1: t.w, h1: t.h}
 }
 
 // ---- stepping ----
 async fn beginStep(to, prev) {
-let token = (flightId += 1)
-flying = true
-landed = false
-await next()                       // let landed terms revert before measuring
-if token != flightId {
-return
-}
-let m = a.length
-let i = to % m
-let j = Math.floor(to / m)
-let sameColumn = prev != null && Math.floor(prev / m) == j
-chips = [sameColumn ? stripFlight("hop", j, prev % m, i) : stripFlight("out", j, null, i)]
-await after(FLY_MS + 80)
-if token == flightId {
-finishFlight()
-}
-}
+  let token = (flightId += 1)
+  flying = true
+  landed = false
+  await next()                       // let landed terms revert before measuring
+  if token != flightId {
+  return
+  }
+  let m = a.length
+  let i = to % m
+  let j = Math.floor(to / m)
+  let sameColumn = prev != null && Math.floor(prev / m) == j
+  chips = [sameColumn ? stripFlight("hop", j, prev % m, i) : stripFlight("out", j, null, i)]
+  await after(FLY_MS + 80)
+  if token == flightId {
+  finishFlight()
+  }
+  }
 fn finishFlight() {
-flightId += 1
-chips = []
-flying = false
-landed = true
-if step == total - 1 {
-phase = "done"
-}
+  flightId += 1
+  chips = []
+  flying = false
+  landed = true
+  if step == total - 1 {
+    phase = "done"
+  }
 }
 fn reset() {
-flightId += 1
-chips = []
-flying = false
-landed = false
-step = 0
-phase = "idle"
+  flightId += 1
+  chips = []
+  flying = false
+  landed = false
+  step = 0
+  phase = "idle"
 }
 fn advance() {
-if flying {
-finishFlight()
-} else if phase == "idle" {
-phase = "running"
-step = 0
-beginStep(0, null)
-} else if phase == "running" {
-let prev = step
-step += 1
-beginStep(step, prev)
-} else {
-reset()
-}
+  if flying {
+    finishFlight()
+  } else if phase == "idle" {
+    phase = "running"
+    step = 0
+    beginStep(0, null)
+  } else if phase == "running" {
+    let prev = step
+    step += 1
+    beginStep(step, prev)
+  } else {
+    reset()
+  }
 }
 
 // ---- markup ----
 <div class="matmul" ref={root}>
-<Matrix kind="m-a">
-for row, i in a {
-<tr>
-for _, j in row {
-<td data-cell={"a-" + i + "-" + j} class="trace" if phase == "idle" && hovered?.i == i>
-if landed && cur?.i == i {
-<span class="term">{j > 0 ? "+ " : ""}{Number(a[i][j])}·{Number(b[j][cur.j])}</span>
-} else {
-<input value=$a[i][j] readonly={phase != "idle"} />
-}
-</td>
-}
-</tr>
-}
-</Matrix>
-<span class="operator">×</span>
-<Matrix kind="m-b">
-for row, i in b {
-<tr>
-for _, j in row {
-<td data-cell={"b-" + i + "-" + j} class="trace" if phase == "idle" && hovered?.j == j>
-<input value=$b[i][j] readonly={phase != "idle"} />
-</td>
-}
-</tr>
-}
-</Matrix>
-<span class="operator">=</span>
-if conformable {
-<Matrix kind="m-ab">
-for row, i in product {
-<tr>
-for v, j in row {
-<td class="result" class="trace" if phase == "idle" && hovered?.i == i && hovered?.j == j
-    onMouseenter={hovered = {i, j}} onMouseleave={hovered = null}>
-<span class="pending" if !shown(i, j)>{v}</span>
-</td>
-}
-</tr>
-}
-</Matrix>
-} else {
-<p class="mismatch">A has {a[0].length} column{a[0].length == 1 ? "" : "s"} but B has {b.length} row{b.length == 1 ? "" : "s"} — the product is undefined.</p>
-}
-for c in chips key c.key {
-<div class="chip" style={{"--x0": c.x0 + "px", "--y0": c.y0 + "px", "--x1": c.x1 + "px", "--y1": c.y1 + "px",
-                          "--r0": c.r0 + "deg", "--r1": c.r1 + "deg", "--w0": c.w0 + "px", "--h0": c.h0 + "px",
-                          "--w1": c.w1 + "px", "--h1": c.h1 + "px", animationDuration: FLY_MS + "ms"}}>
-for v, k in c.values key k {
-<span class="chip-cell" style={{"--s0": -c.r0 + "deg", "--s1": -c.r1 + "deg", animationDuration: FLY_MS + "ms"}}>{v}</span>
-}
-</div>
-}
+  <Matrix kind="m-a">
+    for row, i in a {
+      <tr>
+        for _, j in row {
+          <td data-cell={"a-" + i + "-" + j} class="trace" if phase == "idle" && hovered?.i == i>
+            if landed && cur?.i == i {
+              <span class="term">{j > 0 ? "+ " : ""}{Number(a[i][j])}·{Number(b[j][cur.j])}</span>
+            } else {
+              <input value=$a[i][j] readonly={phase != "idle"} />
+            }
+          </td>
+        }
+      </tr>
+    }
+  </Matrix>
+  <span class="operator">×</span>
+  <Matrix kind="m-b">
+    for row, i in b {
+      <tr>
+        for _, j in row {
+          <td data-cell={"b-" + i + "-" + j} class="trace" if phase == "idle" && hovered?.j == j>
+            <input value=$b[i][j] readonly={phase != "idle"} />
+          </td>
+        }
+      </tr>
+    }
+  </Matrix>
+  <span class="operator">=</span>
+  if conformable {
+    <Matrix kind="m-ab">
+      for row, i in product {
+        <tr>
+          for v, j in row {
+            <td class="result" class="trace" if phase == "idle" && hovered?.i == i && hovered?.j == j
+              onMouseenter={hovered = {i, j}} onMouseleave={hovered = null}>
+              <span class="pending" if !shown(i, j)>{v}</span>
+            </td>
+          }
+        </tr>
+      }
+    </Matrix>
+  } else {
+    <p class="mismatch">A has {a[0].length} column{a[0].length == 1 ? "" : "s"} but B has {b.length} row{b.length == 1 ? "" : "s"} — the product is undefined.</p>
+  }
+  for c in chips key c.key {
+    <div class="chip" style={{"--x0": c.x0 + "px", "--y0": c.y0 + "px", "--x1": c.x1 + "px", "--y1": c.y1 + "px",
+      "--r0": c.r0 + "deg", "--r1": c.r1 + "deg", "--w0": c.w0 + "px", "--h0": c.h0 + "px",
+      "--w1": c.w1 + "px", "--h1": c.h1 + "px", animationDuration: FLY_MS + "ms"}}>
+      for v, k in c.values key k {
+      <span class="chip-cell" style={{"--s0": -c.r0 + "deg", "--s1": -c.r1 + "deg", animationDuration: FLY_MS + "ms"}}>{v}</span>
+      }
+      </div>
+  }
 </div>
 
 <div class="controls">
-<label>A = <input type="text" placeholder="[[1,2],[3,4]]" value=$aText
-       onInput={aParsed && apply("a", aParsed)} onChange={aTouched = true} /></label>
-<label>B = <input type="text" placeholder="[[5,6],[7,8]] or [5,6] for a row vector" value=$bText
-       onInput={bParsed && apply("b", bParsed)} onChange={bTouched = true} /></label>
-if aError || bError {
-<p class="parse-error">Couldn't parse {aError ? "A" : "B"} — use [[1,2],[3,4]], or [1,2,3] for a row vector.</p>
-}
-<button onTap={advance()} disabled={!conformable}>{label}</button>
-</div>
+  <label>A = <input type="text" placeholder="[[1,2],[3,4]]" value=$aText
+    onInput={aParsed && apply("a", aParsed)} onChange={aTouched = true} /></label>
+    <label>B = <input type="text" placeholder="[[5,6],[7,8]] or [5,6] for a row vector" value=$bText
+      onInput={bParsed && apply("b", bParsed)} onChange={bTouched = true} /></label>
+      if aError || bError {
+        <p class="parse-error">Couldn't parse {aError ? "A" : "B"} — use [[1,2],[3,4]], or [1,2,3] for a row vector.</p>
+      }
+      <button onTap={advance()} disabled={!conformable}>{label}</button>
+    </div>
 
-<p class="hint">Edit cells directly, or type a whole matrix into A or B. Hover (or tap) an output cell to see the row and column that produce it.</p>
+    <p class="hint">Edit cells directly, or type a whole matrix into A or B. Hover (or tap) an output cell to see the row and column that produce it.</p>
 
 <style>
 .matmul {

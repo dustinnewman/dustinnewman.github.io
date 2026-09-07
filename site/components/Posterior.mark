@@ -15,23 +15,23 @@ let postB = beta + tails
 // ---- distributions ----
 // Lanczos approximation; plenty accurate for the small parameters here.
 fn logGamma(x) {
-if x < 0.5 {
-return Math.log(Math.PI / Math.sin(Math.PI * x)) - logGamma(1 - x)
-}
-let c = [676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059,
-  12.507343278686905, -0.13857109526572012, 0.0000099843695780195716, 0.00000015056327351493116]
-let y = x - 1
-let t = y + 7.5
-let a = c.reduce((s, ci, i) => s + ci / (y + i + 1), 0.99999999999980993)
-return 0.5 * Math.log(2 * Math.PI) + (y + 0.5) * Math.log(t) - t + Math.log(a)
+  if x < 0.5 {
+    return Math.log(Math.PI / Math.sin(Math.PI * x)) - logGamma(1 - x)
+  }
+  let c = [676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059,
+    12.507343278686905, -0.13857109526572012, 0.0000099843695780195716, 0.00000015056327351493116]
+  let y = x - 1
+  let t = y + 7.5
+  let a = c.reduce((s, ci, i) => s + ci / (y + i + 1), 0.99999999999980993)
+  return 0.5 * Math.log(2 * Math.PI) + (y + 0.5) * Math.log(t) - t + Math.log(a)
 }
 fn logBeta(a, b) = logGamma(a) + logGamma(b) - logGamma(a + b)
 fn betaPdf(x, a, b) {
-if x <= 0 || x >= 1 {
-let edge = x <= 0 ? a : b
-return edge < 1 ? 1 / 0 : edge > 1 ? 0 : Math.exp(-logBeta(a, b))
-}
-return Math.exp((a - 1) * Math.log(x) + (b - 1) * Math.log(1 - x) - logBeta(a, b))
+  if x <= 0 || x >= 1 {
+    let edge = x <= 0 ? a : b
+    return edge < 1 ? 1 / 0 : edge > 1 ? 0 : Math.exp(-logBeta(a, b))
+  }
+  return Math.exp((a - 1) * Math.log(x) + (b - 1) * Math.log(1 - x) - logBeta(a, b))
 }
 
 let priorAt = betaPdf(theta, alpha, beta)
@@ -55,7 +55,7 @@ fn curve(f, yMax, cls, area, dashed, hidden) = {
   line: linePath(f, yMax),
   area: area ? areaPath(f, yMax) : null,
   dot: dashed ? null : sy(f(theta), yMax) / 1.9
-}
+  }
 
 let priorFn = x => betaPdf(x, alpha, beta)
 let posteriorFn = x => betaPdf(x, postA, postB)
@@ -72,129 +72,129 @@ let marker = sx(theta)
 // ---- formatting ----
 // Three significant figures even for small probabilities, so the arithmetic on the last line checks out by hand.
 fn fmt(v, minDecimals) {
-if !Number.isFinite(v) {
-return "∞"
-}
-if v == 0 {
-return "0"
-}
-if Math.abs(v) >= 0.001 {
-return v.toFixed(Math.min(7, Math.max(minDecimals, 2 - Math.floor(Math.log10(Math.abs(v))))))
-}
-return v.toPrecision(3)
+  if !Number.isFinite(v) {
+    return "∞"
+  }
+  if v == 0 {
+    return "0"
+  }
+  if Math.abs(v) >= 0.001 {
+    return v.toFixed(Math.min(7, Math.max(minDecimals, 2 - Math.floor(Math.log10(Math.abs(v))))))
+  }
+  return v.toPrecision(3)
 }
 
 fn reset() {
-theta = 0.7
-alpha = 1
-beta = 1
-flips = ["H", "T", "H", "H"]
+  theta = 0.7
+  alpha = 1
+  beta = 1
+  flips = ["H", "T", "H", "H"]
 }
 
 <div class="posterior">
-<div class="rule">
-$$p(\theta \mid X) = \frac{p(X \mid \theta)\, p(\theta)}{p(X)}$$
-</div>
+  <div class="rule">
+    $$p(\theta \mid X) = \frac{p(X \mid \theta)\, p(\theta)}{p(X)}$$
+  </div>
 
-<section class="panel">
-<h3 class="label centered">$\theta$</h3>
-<p class="caption centered">The bias of the coin — the unknown we want to reason about. Slide it to ask "how well does <em>this</em> value explain the data?"</p>
-<div class="slider-row wide">
-<input type="range" min="0" max="1" step="0.01" value=$theta aria-label="theta" />
-<output class="readout">{theta.toFixed(2)}</output>
-</div>
-</section>
+  <section class="panel">
+    <h3 class="label centered">$\theta$</h3>
+    <p class="caption centered">The bias of the coin — the unknown we want to reason about. Slide it to ask "how well does <em>this</em> value explain the data?"</p>
+    <div class="slider-row wide">
+      <input type="range" min="0" max="1" step="0.01" value=$theta aria-label="theta" />
+      <output class="readout">{theta.toFixed(2)}</output>
+    </div>
+  </section>
 
-<section class="panel">
-<h3 class="label centered">$X$</h3>
-<p class="caption centered">The flips we actually saw. Tap a coin to turn it over.</p>
-<div class="boxes-scroll">
-<div class="boxes">
-if flips.length == 0 {
-<span class="no-data">no flips yet</span>
-}
-for f, i in flips key i {
-<button class="box coin" class="heads" if f == "H" onTap={flips[i] = f == "H" ? "T" : "H"} aria-label={"Flip " + (i + 1)}><span class="face">{f}</span></button>
-}
-</div>
-</div>
-<div class="stepper">
-<button class="step" onTap={flips.pop()} disabled={flips.length == 0} aria-label="Remove a flip">−</button>
-<span class="count">{flips.length}</span>
-<button class="step" onTap={flips.push("H")} disabled={flips.length >= MAX_FLIPS} aria-label="Add a flip">+</button>
-</div>
-<p class="tally centered">$h$ = <b class="heads">{heads}</b> {heads == 1 ? "head" : "heads"}, $t$ = <b class="tails">{tails}</b> {tails == 1 ? "tail" : "tails"}</p>
-</section>
+  <section class="panel">
+    <h3 class="label centered">$X$</h3>
+    <p class="caption centered">The flips we actually saw. Tap a coin to turn it over.</p>
+    <div class="boxes-scroll">
+      <div class="boxes">
+        if flips.length == 0 {
+          <span class="no-data">no flips yet</span>
+        }
+        for f, i in flips key i {
+          <button class="box coin" class="heads" if f == "H" onTap={flips[i] = f == "H" ? "T" : "H"} aria-label={"Flip " + (i + 1)}><span class="face">{f}</span></button>
+        }
+      </div>
+    </div>
+    <div class="stepper">
+      <button class="step" onTap={flips.pop()} disabled={flips.length == 0} aria-label="Remove a flip">−</button>
+      <span class="count">{flips.length}</span>
+      <button class="step" onTap={flips.push("H")} disabled={flips.length >= MAX_FLIPS} aria-label="Add a flip">+</button>
+    </div>
+    <p class="tally centered">$h$ = <b class="heads">{heads}</b> {heads == 1 ? "head" : "heads"}, $t$ = <b class="tails">{tails}</b> {tails == 1 ? "tail" : "tails"}</p>
+  </section>
 
-<section class="panel">
-<h3 class="label centered">$p(\theta)$</h3>
-<p class="caption centered">What we believed before seeing a single flip. A $\mathrm{Beta}$ distribution keeps us on $[0, 1]$; at $\alpha$ = $\beta$ = 1 it is flat, which is to say we have no idea.</p>
-<div class="sliders">
-<label class="slider-row"><span class="param">$\alpha$</span><input type="range" min="0.5" max="10" step="0.1" value=$alpha /><output class="readout">{alpha.toFixed(1)}</output></label>
-<label class="slider-row"><span class="param">$\beta$</span><input type="range" min="0.5" max="10" step="0.1" value=$beta /><output class="readout">{beta.toFixed(1)}</output></label>
-</div>
-<Plot curves={[curve(priorFn, priorMax, "prior", true, false, false)]} marker={marker} />
-<p class="value centered">$p(\theta)$ = <b class="prior">{fmt(priorAt, 3)}</b></p>
-</section>
+  <section class="panel">
+    <h3 class="label centered">$p(\theta)$</h3>
+    <p class="caption centered">What we believed before seeing a single flip. A $\mathrm{Beta}$ distribution keeps us on $[0, 1]$; at $\alpha$ = $\beta$ = 1 it is flat, which is to say we have no idea.</p>
+    <div class="sliders">
+      <label class="slider-row"><span class="param">$\alpha$</span><input type="range" min="0.5" max="10" step="0.1" value=$alpha /><output class="readout">{alpha.toFixed(1)}</output></label>
+      <label class="slider-row"><span class="param">$\beta$</span><input type="range" min="0.5" max="10" step="0.1" value=$beta /><output class="readout">{beta.toFixed(1)}</output></label>
+    </div>
+    <Plot curves={[curve(priorFn, priorMax, "prior", true, false, false)]} marker={marker} />
+    <p class="value centered">$p(\theta)$ = <b class="prior">{fmt(priorAt, 3)}</b></p>
+  </section>
 
-<section class="panel computed">
-<h3 class="label">$p(X \mid \theta)$</h3>
-<p class="caption">Not something we choose — it is read straight off $\theta$. Each head contributes $\theta$, each tail $(1-\theta)$, and the flips are independent, so they multiply.</p>
-<div class="boxes-scroll">
-<div class="boxes left">
-if flips.length == 0 {
-<span class="no-data">no flips yet</span>
-}
-for f, i in flips key i {
-if i > 0 {
-<span class="times">×</span>
-}
-<div class="box term" class="heads" if f == "H">
-<span class="face">{f}</span>
-if f == "H" {
-<span class="symbol">$\theta$</span>
-} else {
-<span class="symbol">$1-\theta$</span>
-}
-<span class="num like">{(f == "H" ? theta : 1 - theta).toFixed(2)}</span>
-</div>
-}
-</div>
-</div>
-<p class="value">$p(X \mid \theta)$ = $\theta$<sup>{heads}</sup>$(1-\theta)$<sup>{tails}</sup> = <b class="like">{fmt(likelihood, 4)}</b></p>
-</section>
+  <section class="panel computed">
+    <h3 class="label">$p(X \mid \theta)$</h3>
+    <p class="caption">Not something we choose — it is read straight off $\theta$. Each head contributes $\theta$, each tail $(1-\theta)$, and the flips are independent, so they multiply.</p>
+    <div class="boxes-scroll">
+      <div class="boxes left">
+        if flips.length == 0 {
+          <span class="no-data">no flips yet</span>
+        }
+        for f, i in flips key i {
+          if i > 0 {
+            <span class="times">×</span>
+          }
+          <div class="box term" class="heads" if f == "H">
+            <span class="face">{f}</span>
+            if f == "H" {
+              <span class="symbol">$\theta$</span>
+            } else {
+              <span class="symbol">$1-\theta$</span>
+            }
+            <span class="num like">{(f == "H" ? theta : 1 - theta).toFixed(2)}</span>
+          </div>
+        }
+      </div>
+    </div>
+    <p class="value">$p(X \mid \theta)$ = $\theta$<sup>{heads}</sup>$(1-\theta)$<sup>{tails}</sup> = <b class="like">{fmt(likelihood, 4)}</b></p>
+  </section>
 
-<section class="panel computed">
-<h3 class="label">$p(X)$</h3>
-<p class="caption">How likely the data was <em>overall</em>, averaging the likelihood over every $\theta$ the prior thought possible. It is the shaded area — one number, the same for every $\theta$, which is why it can only rescale the curve and never reshape it.</p>
-<div class="display">
-$$p(X) = \int_0^1 p(X \mid \theta)\, p(\theta)\, \mathrm{d}\theta$$
-</div>
-<Plot curves={[curve(integrandFn, integrandMax, "joint", true, false, false)]} marker={marker} />
-<p class="value">$p(X)$ = <b>{fmt(evidence, 4)}</b></p>
-</section>
+  <section class="panel computed">
+    <h3 class="label">$p(X)$</h3>
+    <p class="caption">How likely the data was <em>overall</em>, averaging the likelihood over every $\theta$ the prior thought possible. It is the shaded area — one number, the same for every $\theta$, which is why it can only rescale the curve and never reshape it.</p>
+    <div class="display">
+      $$p(X) = \int_0^1 p(X \mid \theta)\, p(\theta)\, \mathrm{d}\theta$$
+    </div>
+    <Plot curves={[curve(integrandFn, integrandMax, "joint", true, false, false)]} marker={marker} />
+    <p class="value">$p(X)$ = <b>{fmt(evidence, 4)}</b></p>
+  </section>
 
-<section class="panel computed">
-<h3 class="label">$p(\theta \mid X)$</h3>
-<p class="caption">Prior times likelihood, divided by that area. For a $\mathrm{Beta}$ prior the answer is another $\mathrm{Beta}$ — the data just adds to the counts.</p>
-<Plot curves={[
-  curve(priorFn, jointMax, "prior", false, false, false),
-  curve(scaledLikelihoodFn, jointMax, "like", false, true, flips.length == 0),
-  curve(posteriorFn, jointMax, "post", true, false, false)
-]} marker={marker} />
-<ul class="legend">
-<li class="prior">prior</li>
-<li class="like" class="hidden" if flips.length == 0>likelihood (rescaled)</li>
-<li class="post">posterior</li>
-</ul>
-<div class="display">
-$$p(\theta \mid X) = \mathrm{Beta}(\theta;\, \alpha + h,\, \beta + t)$$
-</div>
-<p class="counts">$\alpha + h$ = {alpha.toFixed(1)} + {heads} = <b class="post">{postA.toFixed(1)}</b><span class="sep">·</span>$\beta + t$ = {beta.toFixed(1)} + {tails} = <b class="post">{postB.toFixed(1)}</b></p>
-<p class="value payoff">$p(\theta \mid X)$ = <span class="frac"><span class="num"><b class="like">{fmt(likelihood, 4)}</b> <span class="op">×</span> <b class="prior">{fmt(priorAt, 3)}</b></span><span class="den">{fmt(evidence, 4)}</span></span> = <b class="post">{fmt(posteriorAt, 3)}</b></p>
-</section>
+  <section class="panel computed">
+    <h3 class="label">$p(\theta \mid X)$</h3>
+    <p class="caption">Prior times likelihood, divided by that area. For a $\mathrm{Beta}$ prior the answer is another $\mathrm{Beta}$ — the data just adds to the counts.</p>
+    <Plot curves={[
+      curve(priorFn, jointMax, "prior", false, false, false),
+      curve(scaledLikelihoodFn, jointMax, "like", false, true, flips.length == 0),
+      curve(posteriorFn, jointMax, "post", true, false, false)
+      ]} marker={marker} />
+      <ul class="legend">
+      <li class="prior">prior</li>
+      <li class="like" class="hidden" if flips.length == 0>likelihood (rescaled)</li>
+      <li class="post">posterior</li>
+    </ul>
+    <div class="display">
+      $$p(\theta \mid X) = \mathrm{Beta}(\theta;\, \alpha + h,\, \beta + t)$$
+    </div>
+    <p class="counts">$\alpha + h$ = {alpha.toFixed(1)} + {heads} = <b class="post">{postA.toFixed(1)}</b><span class="sep">·</span>$\beta + t$ = {beta.toFixed(1)} + {tails} = <b class="post">{postB.toFixed(1)}</b></p>
+    <p class="value payoff">$p(\theta \mid X)$ = <span class="frac"><span class="num"><b class="like">{fmt(likelihood, 4)}</b> <span class="op">×</span> <b class="prior">{fmt(priorAt, 3)}</b></span><span class="den">{fmt(evidence, 4)}</span></span> = <b class="post">{fmt(posteriorAt, 3)}</b></p>
+  </section>
 
-<button class="reset" onTap={reset()}>Reset</button>
+  <button class="reset" onTap={reset()}>Reset</button>
 </div>
 
 <style>
