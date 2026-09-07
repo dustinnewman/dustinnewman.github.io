@@ -1,20 +1,9 @@
-<!DOCTYPE html><html lang="en-us"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Write your CSS in Lisp-style S-expressions, parsed and applied live via WASM."><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"><link rel="alternate" type="application/rss+xml" href="/index.xml" title="Dustin Newman"><script type="module">document.addEventListener(`DOMContentLoaded`,function(){document.querySelectorAll(`pre code`).forEach(function(e){var t=e.textContent.split(`
-`).length-1;if(!(t<=1)){var n=document.createElement(`span`);n.className=`line-number`;for(var r=1;r<=t;r++){var i=document.createElement(`span`);i.textContent=r,n.appendChild(i)}e.parentNode.insertBefore(n,e)}})});</script><title>Cascading Style S-Expressions</title><link rel="stylesheet" href="/_astro/Base.P2PmnnMW.css"></head><body><main><header><h1><a href="/">Dustin Newman</a></h1><nav><ul><li><a href="/" title="Posts">Posts</a></li><li><a href="/about/" title="About">About</a></li></ul></nav></header><h1>Cascading Style S-Expressions</h1><p>Write your CSS in Lisp-style S-expressions. The first entry in an S-expression is its selector (e.g. element name, class, ID, even commas are supported for multiple targets). From there, you can have CSS rules (properties are the same as always, values can be single strings or - if they contain a space - enclosed with parentheses) and nested children. All your updates in the input box will be parsed and then applied to this page dynamically using the power of WASM. All <a href="https://github.com/dustinnewman/dustinnewman.github.io/tree/master/apps/cascading-style-s-expressions">source code</a> is on GitHub.</p><p class="textarea-label">Input</p><textarea id="input">(textarea width 100% height 30vh)
-(article border (1px solid black) (p color red))
-(.textarea-label font-weight bold)</textarea><p class="textarea-label">Output</p><textarea id="output"></textarea><p class="textarea-label">Preview (All elements below are enclosed in an <code>article</code> div.)</p><article><h1>Style me! (I'm an h1)</h1><h2>Me too! (I'm an h2)</h2><p>I am a sample paragraph.</p></article><script type="module">
-        import init, {string_to_stylesheet} from "/cascading-style-s-expressions/pkg/css.js";
-        let input = document.getElementById("input");
-        let output = document.getElementById("output");
-        let sheet = document.createElement("style");
-        document.head.appendChild(sheet);
-        function setOutput(i) {
-            let o = string_to_stylesheet(i);
-            output.textContent = o;
-            sheet.innerHTML = o;
-        }
-        init()
-            .then(() => {
-                setOutput(input.textContent);
-                input.addEventListener("input", e => setOutput(e.target.value));
-            });
-    </script></main><footer></footer></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Dustin Newman's blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"><link rel="stylesheet" href="/normalize.css"><link rel="stylesheet" href="/magick.css"><script src="/codelines.js" defer></script><title>Cascading Style S-Expressions</title><link rel="stylesheet" href="/_mk/mark.css">
+</head>
+<body>
+<main><header><h1><a href="/">Dustin Newman</a></h1><nav><ul><li><a href="/">Posts</a></li><li><a href="/about">About</a></li></ul></nav></header><h1 id="cascading-style-s-expressions">Cascading Style S-Expressions</h1><p>Write your CSS in Lisp-style S-expressions. The first entry in an S-expression is its selector (e.g. element name, class, ID, even commas are supported for multiple targets). From there, you can have CSS rules (properties are the same as always, values can be single strings or - if they contain a space - enclosed with parentheses) and nested children. All your updates in the input box will be parsed and then applied to this page dynamically using the power of WASM. All <a href="https://github.com/dustinnewman/dustinnewman.github.io/tree/master/apps/cascading-style-s-expressions">source code</a> is on GitHub.</p><p class="textarea-label">Input</p><textarea id="input"></textarea><p class="textarea-label">Output</p><textarea id="output"></textarea><p class="textarea-label">Preview (All elements below are enclosed in an <code>article</code> div.)</p><article><h1 id="style-me-i-m-an-h1">Style me! (I'm an h1)</h1><h2 id="me-too-i-m-an-h2">Me too! (I'm an h2)</h2><p>I am a sample paragraph.</p></article><script type="module" src="/cascading-style-s-expressions/app.js"></script></main>
+</body>
+</html>

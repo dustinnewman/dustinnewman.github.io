@@ -1,0 +1,1 @@
+export default {"id":"posts/posterior-visualizer","name":"","kind":"page","props":["title","date"],"stamp":null,"nodes":[{"t":"tag","name":"Posterior","kind":"comp","attrs":[],"children":[],"selfClose":true,"line":24,"id":3,"island":true}]};

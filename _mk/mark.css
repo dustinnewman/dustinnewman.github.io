@@ -1,0 +1,197 @@
+/* components/MatMul */
+.matmul[data-mk-MatMul] {
+  /* Row of A is red, column of B is blue; where they meet mixes to purple. */
+  --red: #e0483e;
+  --blue: #4a90d9;
+  --purple: color-mix(in srgb, var(--red) 50%, var(--blue));
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  row-gap: 2rem;
+  flex-wrap: wrap;
+  margin: 2rem 0;
+}
+.matmul td[data-mk-MatMul] { padding: 0.4rem 0.6rem; text-align: center; white-space: nowrap; }
+.m-a td[data-mk-MatMul] { min-width: 6.2rem; }
+.m-a td.trace[data-mk-MatMul] { background-color: color-mix(in srgb, var(--red) 30%, transparent); }
+.m-b td.trace[data-mk-MatMul] { background-color: color-mix(in srgb, var(--blue) 30%, transparent); }
+.m-ab td.trace[data-mk-MatMul] { background-color: color-mix(in srgb, var(--purple) 40%, transparent); }
+.matmul td input[data-mk-MatMul] {
+  width: 5rem;
+  text-align: center;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid transparent;
+  padding: 0.1rem 0;
+}
+.matmul td input[data-mk-MatMul]:focus { outline: none; border-bottom: 1px solid var(--fg, currentColor); }
+.matmul td input[readonly][data-mk-MatMul] { border-bottom-color: transparent; }
+.matmul td.result[data-mk-MatMul] { min-width: 5rem; cursor: default; }
+.pending[data-mk-MatMul] { visibility: hidden; }
+/* The column of B in flight: one rigid vector, brackets and all. The box
+   rotates about its center; each value counter-rotates to stay upright. */
+.chip[data-mk-MatMul] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg, #fefefe);
+  animation-name: strip-fly;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: both;
+  pointer-events: none;
+}
+.chip[data-mk-MatMul]::before, .chip[data-mk-MatMul]::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0.5rem;
+  border-top: 2px solid var(--fg, currentColor);
+  border-bottom: 2px solid var(--fg, currentColor);
+}
+.chip[data-mk-MatMul]::before { left: 0; border-left: 2px solid var(--fg, currentColor); }
+.chip[data-mk-MatMul]::after { right: 0; border-right: 2px solid var(--fg, currentColor); }
+.chip-cell[data-mk-MatMul] {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation-name: strip-spin;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: both;
+}
+@keyframes strip-fly {
+  from { width: var(--w0); height: var(--h0); transform: translate(var(--x0), var(--y0)) rotate(var(--r0)); }
+  to { width: var(--w1); height: var(--h1); transform: translate(var(--x1), var(--y1)) rotate(var(--r1)); }
+}
+@keyframes strip-spin {
+  from { transform: rotate(var(--s0)); }
+  to { transform: rotate(var(--s1)); }
+}
+.operator[data-mk-MatMul] { font-size: 2.4rem; }
+.mismatch[data-mk-MatMul] { font-style: italic; font-size: 1.6rem; }
+.controls[data-mk-MatMul] { display: flex; flex-direction: column; gap: 0.4rem; margin: 1.6rem 0; max-width: 44rem; }
+.controls label[data-mk-MatMul] { display: flex; align-items: baseline; gap: 0.8rem; }
+.controls label input[data-mk-MatMul] { flex: 1; margin-bottom: 0; }
+.controls label input[data-mk-MatMul]:focus { margin-bottom: -1px; }
+.controls button[data-mk-MatMul] { margin-top: 0.8rem; align-self: flex-start; min-width: 12rem; font-family: inherit; font-size: 1.6rem; }
+.parse-error[data-mk-MatMul] { font-style: italic; font-size: 1.4rem; margin: 0; }
+.hint[data-mk-MatMul] { font-size: 1.4rem; }
+
+/* components/Matrix */
+.matrix[data-mk-Matrix] { position: relative; padding: 0.3rem 1rem; display: inline-block; }
+.matrix[data-mk-Matrix]::before, .matrix[data-mk-Matrix]::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0.7rem;
+  border-top: 2px solid var(--fg, currentColor);
+  border-bottom: 2px solid var(--fg, currentColor);
+}
+.matrix[data-mk-Matrix]::before { left: 0; border-left: 2px solid var(--fg, currentColor); }
+.matrix[data-mk-Matrix]::after { right: 0; border-right: 2px solid var(--fg, currentColor); }
+
+/* components/Plot */
+.plot[data-mk-Plot] { position: relative; width: 100%; height: 20rem; margin: 1.2rem 0 0.4rem; }
+.canvas[data-mk-Plot] { display: block; position: absolute; inset: 0; width: 100%; height: 100%; }
+.hidden[data-mk-Plot] { display: none; }
+.tick-label[data-mk-Plot] { position: absolute; top: 84.2%; transform: translate(-50%, 0.5rem); font-size: 1.3rem; opacity: 0.65; }
+.dot[data-mk-Plot] { position: absolute; width: 1rem; height: 1rem; border-radius: 50%; border: 2px solid var(--bg); transform: translate(-50%, -50%); }
+.dot.prior[data-mk-Plot] { background: var(--blue); }
+.dot.post[data-mk-Plot], .dot.joint[data-mk-Plot] { background: var(--purple); }
+path.line[data-mk-Plot] { fill: none; stroke-width: 2.5; vector-effect: non-scaling-stroke; }
+path.line.dashed[data-mk-Plot] { stroke-width: 1.75; stroke-dasharray: 5 5; }
+path.area[data-mk-Plot] { stroke: none; opacity: 0.18; }
+.prior[data-mk-Plot] { stroke: var(--blue); fill: var(--blue); }
+.like[data-mk-Plot] { stroke: var(--red); fill: var(--red); }
+.post[data-mk-Plot], .joint[data-mk-Plot] { stroke: var(--purple); fill: var(--purple); }
+.axis[data-mk-Plot] { stroke: var(--fg); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.marker[data-mk-Plot] { stroke: var(--fg); stroke-width: 1; stroke-dasharray: 3 4; vector-effect: non-scaling-stroke; }
+@media (max-width: 600px) { .plot[data-mk-Plot] { height: 17rem; } }
+
+/* components/Posterior */
+.posterior[data-mk-Posterior] {
+  /* Same convention as the matrix visualizer: red meets blue, makes purple. */
+  --red: #e0483e;
+  --blue: #4a90d9;
+  --purple: color-mix(in srgb, var(--red) 45%, var(--blue));
+  --hair: color-mix(in srgb, var(--fg) 30%, transparent);
+  margin: 2rem 0;
+}
+.panel[data-mk-Posterior] { margin: 0; padding: 3.2rem 0 0; border-top: 1px solid var(--hair); }
+.panel + .panel[data-mk-Posterior] { margin-top: 3.2rem; }
+.label[data-mk-Posterior] { font-size: 2.8rem; margin: 0 0 0.8rem; }
+.label[data-mk-Posterior]::before { content: none; }
+.centered[data-mk-Posterior] { text-align: center; }
+.caption[data-mk-Posterior] { font-size: 1.5rem; line-height: 1.5; margin: 0 auto 1.8rem; max-width: 54rem; opacity: 0.85; }
+.panel.computed .caption[data-mk-Posterior] { margin-left: 0; }
+.display[data-mk-Posterior], .rule[data-mk-Posterior] { text-align: center; margin: 1.6rem 0; }
+.rule[data-mk-Posterior] { font-size: 2rem; margin: 0 0 3.2rem; }
+.hidden[data-mk-Posterior] { display: none; }
+/* ---- sliders ---- */
+.sliders[data-mk-Posterior] { display: flex; flex-direction: column; gap: 0.6rem; max-width: 42rem; margin: 0 auto 2rem; }
+.slider-row[data-mk-Posterior] { display: grid; grid-template-columns: 2.4rem 1fr 5rem; align-items: center; gap: 1.2rem; }
+.slider-row.wide[data-mk-Posterior] { max-width: 42rem; margin: 0 auto; grid-template-columns: 1fr 5rem; }
+.param[data-mk-Posterior] { text-align: right; font-size: 2rem; }
+.readout[data-mk-Posterior] { font-family: Caveat, cursive; font-size: 2.6rem; color: var(--form-fg); text-align: left; }
+input[type="range"][data-mk-Posterior] { -webkit-appearance: none; appearance: none; width: 100%; background: transparent; margin: 0; padding: 0; cursor: pointer; }
+input[type="range"][data-mk-Posterior]::-webkit-slider-runnable-track { height: 1px; background: var(--fg); }
+input[type="range"][data-mk-Posterior]::-moz-range-track { height: 1px; background: var(--fg); }
+input[type="range"][data-mk-Posterior]::-webkit-slider-thumb { -webkit-appearance: none; width: 1.6rem; height: 1.6rem; margin-top: -0.8rem; border-radius: 50%; border: 2px solid var(--fg); background: var(--bg); }
+input[type="range"][data-mk-Posterior]::-moz-range-thumb { width: 1.6rem; height: 1.6rem; border-radius: 50%; border: 2px solid var(--fg); background: var(--bg); }
+input[type="range"][data-mk-Posterior]:focus-visible::-webkit-slider-thumb { border-color: var(--purple); }
+input[type="range"][data-mk-Posterior]:focus-visible::-moz-range-thumb { border-color: var(--purple); }
+/* ---- boxes: one per flip, in X and again in the likelihood ---- */
+.boxes-scroll[data-mk-Posterior] { overflow-x: auto; padding: 0.4rem 0; }
+.boxes[data-mk-Posterior] { display: flex; align-items: center; gap: 0.5rem; justify-content: center; justify-content: safe center; min-width: min-content; }
+.boxes.left[data-mk-Posterior] { justify-content: flex-start; }
+.box[data-mk-Posterior], .times[data-mk-Posterior] { flex: none; }
+.box[data-mk-Posterior] { display: flex; align-items: center; justify-content: center; border: 1px solid var(--fg); background: transparent; color: var(--fg); }
+.box .face[data-mk-Posterior] { display: inline-block; font-family: "Averia Libre", cursive; line-height: 1; }
+.box.heads .face[data-mk-Posterior] { color: var(--red); }
+.box:not(.heads) .face[data-mk-Posterior] { color: var(--blue); }
+.no-data[data-mk-Posterior] { display: inline-flex; align-items: center; min-height: 4.8rem; padding: 0 1.6rem; border: 1px dashed var(--hair); font-style: italic; font-size: 1.4rem; opacity: 0.6; }
+.coin[data-mk-Posterior] { width: 4.8rem; height: 4.8rem; margin: 0; padding: 0; font-size: 2.2rem; cursor: pointer; }
+.coin[data-mk-Posterior]:hover, .coin[data-mk-Posterior]:focus-visible { outline: none; box-shadow: inset 0 0 0 1px var(--fg); }
+.term[data-mk-Posterior] { flex-direction: column; gap: 0.35rem; width: 5.2rem; padding: 0.6rem 0.2rem; }
+.term .face[data-mk-Posterior] { font-size: 1.8rem; }
+.term .symbol[data-mk-Posterior] { font-size: 1.3rem; line-height: 1; opacity: 0.55; }
+.term .num[data-mk-Posterior] { font-size: 1.6rem; line-height: 1; }
+.times[data-mk-Posterior] { font-size: 1.4rem; opacity: 0.45; }
+/* ---- stepper ---- */
+.stepper[data-mk-Posterior] { display: flex; align-items: center; justify-content: center; gap: 1.4rem; margin: 1.4rem 0 0.6rem; }
+.step[data-mk-Posterior] { width: 3.2rem; height: 3.2rem; margin: 0; padding: 0; line-height: 1; font-size: 2rem; font-family: inherit; }
+.count[data-mk-Posterior] { font-family: Caveat, cursive; font-size: 2.6rem; color: var(--form-fg); min-width: 2.4rem; text-align: center; }
+.tally[data-mk-Posterior] { font-size: 1.5rem; margin: 0.6rem 0 0; }
+.legend[data-mk-Posterior] { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.6rem; list-style: none; margin: 0.4rem 0 0; padding: 0; font-size: 1.4rem; }
+.legend li[data-mk-Posterior]::before { content: ""; display: inline-block; width: 1.6rem; height: 0.3rem; margin-right: 0.6rem; vertical-align: 0.35rem; background: currentColor; }
+/* ---- readouts ---- */
+.value[data-mk-Posterior] { font-size: 1.8rem; margin: 1.2rem 0 0; }
+.value sup[data-mk-Posterior] { font-size: 1.2rem; }
+.counts[data-mk-Posterior] { font-size: 1.6rem; margin: 0.8rem 0 0; }
+.counts .sep[data-mk-Posterior] { padding: 0 1rem; opacity: 0.5; }
+.prior[data-mk-Posterior] { color: var(--blue); }
+.tally .heads[data-mk-Posterior] { color: var(--red); }
+.tally .tails[data-mk-Posterior] { color: var(--blue); }
+.like[data-mk-Posterior] { color: var(--red); }
+.post[data-mk-Posterior] { color: var(--purple); }
+.payoff[data-mk-Posterior] { font-size: 2rem; margin-top: 1.8rem; }
+.frac[data-mk-Posterior] { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 0.4rem; }
+.frac .num[data-mk-Posterior] { padding: 0 0.8rem 0.2rem; border-bottom: 1px solid var(--fg); }
+.frac .den[data-mk-Posterior] { padding: 0.2rem 0.8rem 0; }
+.frac .op[data-mk-Posterior] { padding: 0 0.4rem; opacity: 0.6; }
+.reset[data-mk-Posterior] { display: block; margin: 3.2rem auto 0; font-family: inherit; font-size: 1.6rem; }
+@media (max-width: 600px) {
+  .label[data-mk-Posterior] { font-size: 2.4rem; }
+  .boxes[data-mk-Posterior] { gap: 0.35rem; }
+  .coin[data-mk-Posterior] { width: 3.6rem; height: 3.6rem; font-size: 1.8rem; }
+  .term[data-mk-Posterior] { width: 4.8rem; }
+  .term .symbol[data-mk-Posterior] { font-size: 1.2rem; }
+  .payoff[data-mk-Posterior] { font-size: 1.7rem; }
+}
