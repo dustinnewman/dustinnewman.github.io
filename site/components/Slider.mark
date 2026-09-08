@@ -1,0 +1,25 @@
+// A labelled range input with a live readout. Bind with `value=$x`; the label is the slot.
+prop value = 0
+prop onValueChange = {}
+prop min = 0
+prop max = 1
+prop step = 0.01
+prop digits = 2
+<label class="slider">
+  <span class="param"><slot /></span>
+  <input type="range" min={min} max={max} step={step} value=$value />
+  <output class="readout">{value.toFixed(digits)}</output>
+</label>
+<style>
+.slider { display: flex; align-items: center; gap: 1.2rem; max-width: 42rem; margin: 0.6rem auto; }
+.param { font-size: 2rem; }
+.param:empty { display: none; }
+.readout { font-family: Caveat, cursive; font-size: 2.6rem; color: var(--form-fg); min-width: 5rem; }
+input[type="range"] { -webkit-appearance: none; appearance: none; flex: 1; background: transparent; margin: 0; padding: 0; cursor: pointer; }
+input[type="range"]::-webkit-slider-runnable-track { height: 1px; background: var(--fg); }
+input[type="range"]::-moz-range-track { height: 1px; background: var(--fg); }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 1.6rem; height: 1.6rem; margin-top: -0.8rem; border-radius: 50%; border: 2px solid var(--fg); background: var(--bg); }
+input[type="range"]::-moz-range-thumb { width: 1.6rem; height: 1.6rem; border-radius: 50%; border: 2px solid var(--fg); background: var(--bg); }
+input[type="range"]:focus-visible::-webkit-slider-thumb { border-color: var(--purple); }
+input[type="range"]:focus-visible::-moz-range-thumb { border-color: var(--purple); }
+</style>

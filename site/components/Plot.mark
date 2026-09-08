@@ -1,25 +1,45 @@
-// Display-only plot over theta in [0, 1]. `curves` is a fixed list of {cls, line, area?, dashed?, hidden?, dot?}
-// (path strings in a 640x190 viewBox); `marker` is theta's x in the same units. The SVG stretches to fill its box,
-// so the tick labels and dots are HTML placed by percentage.
+// Display-only plot of functions of theta over [0, 1], with a dashed marker at the current theta.
+// Each curve is {f, color?, width?, dashed?, area?, rescale?, hidden?}: styling rides on the curve
+// itself, so a page picks its own palette instead of matching a class name to a rule in here.
+// Colours default to --blue, which stays legible in both light and dark mode (black does not).
+// The y-axis is scaled to fit the curves that are not `rescale`d; a rescaled curve (a likelihood,
+// which is not a density) is drawn against its own peak instead.
+// Paths live in a 640x190 viewBox that stretches to fill the box, so labels and dots are HTML placed by percentage.
 prop curves = []
-prop marker = 0
+prop theta = 0
+prop floor = 0
+
+let N = 192
+let XS = Array.from({length: N + 1}, (_, i) => i / N)
+fn sx(x) = 12 + x * 616
+// Peak over the open interval, so an unbounded Beta edge doesn't flatten everything else into the baseline.
+fn peak(f) = XS.slice(1, N).reduce((m, x) => (v => Number.isFinite(v) && v > m ? v : m)(f(x)), 0)
+let yMax = Math.max(Math.min(curves.filter(c => !c.rescale).reduce((m, c) => Math.max(m, peak(c.f)), 0) * 1.25, 14), floor, 0.000000000001)
+fn sy(y) = 160 - (Number.isFinite(y) ? Math.max(0, Math.min(y / yMax, 1)) : 1) * 142
+fn height(c) = c.rescale ? (x => c.f(x) / peak(c.f) * yMax * 0.82) : c.f
+fn line(c) = XS.map((x, i) => (i == 0 ? "M" : "L") + sx(x).toFixed(1) + " " + sy(height(c)(x)).toFixed(1)).join("")
+fn area(c) = line(c) + "L628 160L12 160Z"
+fn color(c) = c.color || "var(--blue)"
+fn width(c) = c.width || (c.dashed ? 1.75 : 2.5)
+let marker = sx(theta)
+
 <div class="plot">
   <svg class="canvas" viewBox="0 0 640 190" preserveAspectRatio="none" aria-hidden="true">
-    for c in curves key c.cls {
-      <path class={"area " + c.cls} class="hidden" if c.hidden || !c.area d={c.area || ""} />
+    for c, i in curves key i {
+      <path class="area" class="hidden" if c.hidden || !c.area fill={color(c)} d={c.area ? area(c) : ""} />
     }
     <line class="axis" x1="12" y1="160" x2="628" y2="160" />
     <line class="marker" x1={marker} y1="160" x2={marker} y2="12" />
-    for c in curves key c.cls {
-      <path class={"line " + c.cls} class="dashed" if c.dashed class="hidden" if c.hidden d={c.line} />
+    for c, i in curves key i {
+      <path class="line" class="hidden" if c.hidden stroke={color(c)} stroke-width={width(c)} stroke-dasharray="5 5" if c.dashed d={line(c)} />
     }
   </svg>
   for t in [0, 0.5, 1] {
-    <span class="tick-label" style={{left: (12 + t * 616) / 6.4 + "%"}}>{t}</span>
+    <span class="tick" style={{left: sx(t) / 6.4 + "%"}}>{t}</span>
   }
-  for c in curves key c.cls {
-    if c.dot != null {
-      <span class={"dot " + c.cls} class="hidden" if c.hidden style={{left: marker / 6.4 + "%", top: c.dot + "%"}}></span>
+  for c, i in curves key i {
+    if !c.dashed {
+      <span class="dot" class="hidden" if c.hidden style={{left: marker / 6.4 + "%", top: sy(height(c)(theta)) / 1.9 + "%", background: color(c)}}></span>
     }
   }
 </div>
@@ -27,16 +47,10 @@ prop marker = 0
 .plot { position: relative; width: 100%; height: 20rem; margin: 1.2rem 0 0.4rem; }
 .canvas { display: block; position: absolute; inset: 0; width: 100%; height: 100%; }
 .hidden { display: none; }
-.tick-label { position: absolute; top: 84.2%; transform: translate(-50%, 0.5rem); font-size: 1.3rem; opacity: 0.65; }
+.tick { position: absolute; top: 84.2%; transform: translate(-50%, 0.5rem); font-size: 1.3rem; opacity: 0.65; }
 .dot { position: absolute; width: 1rem; height: 1rem; border-radius: 50%; border: 2px solid var(--bg); transform: translate(-50%, -50%); }
-.dot.prior { background: var(--blue); }
-.dot.post, .dot.joint { background: var(--purple); }
-path.line { fill: none; stroke-width: 2.5; vector-effect: non-scaling-stroke; }
-path.line.dashed { stroke-width: 1.75; stroke-dasharray: 5 5; }
+path.line { fill: none; vector-effect: non-scaling-stroke; }
 path.area { stroke: none; opacity: 0.18; }
-.prior { stroke: var(--blue); fill: var(--blue); }
-.like { stroke: var(--red); fill: var(--red); }
-.post, .joint { stroke: var(--purple); fill: var(--purple); }
 .axis { stroke: var(--fg); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .marker { stroke: var(--fg); stroke-width: 1; stroke-dasharray: 3 4; vector-effect: non-scaling-stroke; }
 @media (max-width: 600px) { .plot { height: 17rem; } }

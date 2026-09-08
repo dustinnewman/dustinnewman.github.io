@@ -15,3 +15,11 @@
 </header>
 <slot />
 </main>
+<style global>
+:root {
+  --red: #e0483e;
+  --blue: #4a90d9;
+  --purple: color-mix(in srgb, var(--red) 45%, var(--blue));
+  --hair: color-mix(in srgb, var(--fg) 30%, transparent);
+}
+</style>

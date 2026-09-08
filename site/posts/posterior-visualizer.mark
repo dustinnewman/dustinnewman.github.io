@@ -1,47 +1,221 @@
 prop title = "Posterior Visualizer"
 prop date = "2026-09-04"
-Bayes' rule is four symbols and a horizontal line, and I have never once found
-that enough to see what it *does*. So here is the whole thing taken apart: a
-coin with unknown bias $\theta$, a handful of flips, and every term of the rule
-laid out in the order you would actually compute it.
 
-Play with it. Drag $\theta$ and watch the likelihood row rewrite itself. Flip a
-coin from heads to tails and watch the posterior slide left. Widen the prior and
-watch the data take over.
+fn fmt(v, minDecimals) {
+  if !Number.isFinite(v) {
+    return "∞"
+  }
+  if v == 0 {
+    return "0"
+  }
+  if Math.abs(v) >= 0.001 {
+    return v.toFixed(Math.min(7, Math.max(minDecimals, 2 - Math.floor(Math.log10(Math.abs(v))))))
+  }
+  return v.toPrecision(3)
+}
 
-Three things are worth noticing:
+The posterior is crucial in a variety of machine learning methods, such as
+variational auto-encoders (VAEs). Here, I seek to build up and demonstrate
+a visual understanding of what the posterior actually *is*, and the steps
+involved in computing it.
 
-- The **likelihood** is not a distribution over $\theta$. It is a number you get
-  by picking a $\theta$ and asking how well it explains the flips you have. That
-  is why it is computed here rather than set.
-- The **evidence** $p(X)$ is one number. It does not depend on $\theta$, so
-  dividing by it can only rescale the curve — it can never move the peak. All of
-  the *shape* of the posterior comes from prior $\times$ likelihood.
-- With a Beta prior the posterior is Beta again, and the update is just
-  counting: $\alpha$ gains a head, $\beta$ gains a tail. Conjugacy is the reason
-  the picture stays this clean.
+The posterior is defined in Bayes' rule, which relates it to the likelihood,
+the prior, and the evidence/marginal probability.
 
-<Posterior />
+$$p(\theta \mid X) = \frac{p(X \mid \theta)\, p(\theta)}{p(X)}$$
 
-The prior here is $\mathrm{Beta}(\alpha, \beta)$ because it is the natural
-distribution over a probability. It lives on $[0, 1]$, it is flat when
-$\alpha = \beta = 1$, and it can be pushed toward either end or squeezed toward
-the middle with two knobs. A Gaussian cannot do that without leaking probability
-past the ends of the interval.
+Let's try and see if we can better illustrate what Bayes' rule is actually
+relating. We consider a motivating example of a number of coin tosses of a
+(potentially) biased coin. We assume that the actual bias is unknown or
+unobservable to us, but we can estimate it using a *parameter* $\theta$.
 
-The likelihood assumes the flips are independent given $\theta$, so it is the
-product $\theta^h (1-\theta)^t$ over the $h$ heads and $t$ tails. Note that $X$
-is the *sequence* of flips, not the count, so there is no binomial coefficient
-out front. It would cancel in the ratio anyway.
+## $\theta$
 
-The evidence is the integral of that product against the prior, and for a Beta
-prior it has a closed form:
+In this example, we have a single parameter $\theta$ which represents the coin's
+*bias*, with $\theta = 0.5$ representing a fair coin, $\theta = 1.0$ representing
+a coin which will only ever come up heads, and $\theta = 0.0$ representing a coin
+which will only ever come up tails.
 
-$$
-p(X) = \int_0^1 \theta^{h}(1-\theta)^{t}\, p(\theta)\, \mathrm{d}\theta
-     = \frac{B(\alpha + h,\, \beta + t)}{B(\alpha,\, \beta)}
-$$
+var theta = 0.7
+<Slider value=$theta min={0} max={1} step={0.01}>$\theta$</Slider>
 
-so nothing on this page is a numerical approximation. Put those together and the
-posterior is $\mathrm{Beta}(\alpha + h,\, \beta + t)$ — the same curve, redrawn
-with the counts folded in.
+## $X$
+
+$X$ is our dataset: our actual observed set of coin flips. In the real world, you
+don't usually get to choose this, but here you can build your own $X$ below.
+Tap on a coin face to flip it.
+
+var flips = ["H", "T", "H", "H"]
+<Coins $flips max={10} />
+let heads = flips.filter(f => f == "H").length
+let tails = flips.length - heads
+
+$h$ = <b class="heads">{heads}</b> {heads == 1 ? "head" : "heads"}, $t$ = <b class="tails">{tails}</b> {tails == 1 ? "tail" : "tails"}
+
+## Likelihood: $p(X \mid \theta)$
+
+Now that we have our observed dataset $X$ and our parameter $\theta$, one of the
+first things we might want to know is: how good is our guess? Intuitively, if you
+rolled heads 10 times in a row, you would think it's highly unlikely that the coin
+was fair, and you would think it's even *more* unlikely that the coin is tails-biased.
+
+Take a second and consider exactly why that is. If you do, you'll probably back
+up your claim using some calculation assuming the probability of heads is 0.5, and
+then showing how unlikely it is to get 10 heads in a row. And then if we assume the
+probability of heads is 0.1 (i.e the coin has a 90% change of tails), it's even
+*less* likely.
+
+This notion is precisely what **likelihood** quantifies. It quantifies "*given*
+our guess of $\theta$, how *likely* is our dataset $X$?" Below you can see the math
+worked out for your current guess of $\theta = {theta}$.
+
+let likelihood = x => x ** heads * (1 - x) ** tails
+<CoinLikelihood flips={flips} theta={theta} />
+
+Once we have the likelihood for one value of $\theta$, the natural next step is
+to take all possible values of $\theta$ and plot the likelihood *function*.
+
+<Plot curves={[{f: likelihood, color: "var(--red)", area: true}]} theta={theta} />
+<ul class="legend">
+  <li class="like" class="hidden" if flips.length == 0>likelihood</li>
+</ul>
+<Slider value=$theta min={0} max={1} step={0.01}>$\theta$</Slider>
+
+This lets us see which values of $\theta$ best explain the dataset. Look at your
+value of $\theta$ plotted above using the vertical line. Is it the most likely
+value? Which other values may explain $X$ better?
+
+## Prior: $p(\theta)$
+
+So we have our parameter $\theta$ which we can vary and see which values best fit
+the data. But what if, just before the coin tosses, a mysterious stranger pulled
+you aside and said "don't ask me how I know, but the coin is biased 70% heads."
+This would make you much likely to at least start your guess off at 0.7. 
+Conversely, you may have no clue about the coin, but generally believe like most
+of us that most coins are fair coins, in which case perhaps you would start your
+guess at 0.5, and be much more doubtful as the coin got more biased either way.
+
+We want some ability to nudge our algorithm to take into account this prior
+information we may have about the world. Fittingly, this is called the **prior**
+in probability, and written $p(\theta)$.
+
+Below, you can experiment with different kinds of distributions for your
+prior using a Beta distribution. You don't really need to know what the means.
+Just know that it's bound from 0 to 1, which makes it a natural fit for
+$\theta$ here. It also allows us to easily express both a uniform distribution
+($\alpha = \beta = 1$) and a bell-shaped distribution if you increase
+$\alpha$ and $\beta$ simultaneously. Increasing $\alpha$ pushes the distribution
+towards heads at a higher certainty, while increasing $\beta$ pushes the distribution
+towards tails.
+
+var alpha = 1
+var beta = 1
+<Slider value=$alpha min={1} max={10} step={0.1} digits={1}>$\alpha$</Slider>
+<Slider value=$beta min={1} max={10} step={0.1} digits={1}>$\beta$</Slider>
+
+fn logGamma(x) {
+  if x < 0.5 {
+    return Math.log(Math.PI / Math.sin(Math.PI * x)) - logGamma(1 - x)
+  }
+  let c = [676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059,
+    12.507343278686905, -0.13857109526572012, 0.0000099843695780195716, 0.00000015056327351493116]
+  let y = x - 1
+  let t = y + 7.5
+  let a = c.reduce((s, ci, i) => s + ci / (y + i + 1), 0.99999999999980993)
+  return 0.5 * Math.log(2 * Math.PI) + (y + 0.5) * Math.log(t) - t + Math.log(a)
+}
+fn logBeta(a, b) = logGamma(a) + logGamma(b) - logGamma(a + b)
+fn betaPdf(x, a, b) {
+  if x <= 0 || x >= 1 {
+    let edge = x <= 0 ? a : b
+    return edge < 1 ? 1 / 0 : edge > 1 ? 0 : Math.exp(-logBeta(a, b))
+  }
+  return Math.exp((a - 1) * Math.log(x) + (b - 1) * Math.log(1 - x) - logBeta(a, b))
+}
+let prior = x => betaPdf(x, alpha, beta)
+
+<Plot curves={[{f: prior, color: "var(--blue)", area: true}]} floor={1.3} theta={theta} />
+
+Evaluating $p(\theta)$ at $\theta$ gives us the density <b class="prior">{fmt(prior(theta), 3)}</b>
+
+## Evidence: $p(X)$
+
+Whereas the likelihood tells us how well each $\theta$ explains $X$, the evidence
+tells us how well our *model* explains $X$, by averaging the likelihood weighted
+by the prior.
+
+$$p(X) = \int p(X \mid \theta)\, p(\theta)\, d \theta$$
+
+We plot the **joint** $p(X \mid \theta)\, p(\theta)$ below. The area
+under this curve represents how well our model explains $X$, which is $p(X)$.
+
+let joint = x => likelihood(x) * prior(x)
+let evidence = Math.exp(logBeta(alpha + heads, beta + tails) - logBeta(alpha, beta))
+
+<Plot curves={[{f: joint, color: "var(--purple)", area: true}]} theta={theta} />
+
+$p(X) =$ <b>{fmt(evidence, 4)}</b>
+
+## Posterior: $p(\theta \mid X)$
+
+Now we have finally arrived: the posterior. The posterior is the flipside of
+the prior. Whereas the prior asks "how likely is $\theta$ *before* seeing
+$X$," the posterior asks "how likely is $\theta$ *after* seeing $X$?" It is an
+update of the prior, weighted by the likelihood.
+
+$$p(\theta \mid X) = \frac{p(X \mid \theta) p(\theta)}{p(X)}$$
+
+Notice that this is literally just Bayes' rule. Below are all parameter sliders
+so you can directly see the effects of different $\theta$ and the prior $p(\theta)$
+on the posterior.
+
+let posterior = x => betaPdf(x, alpha + heads, beta + tails)
+
+<Slider value=$theta min={0} max={1} step={0.01}>$\theta$</Slider>
+<Slider value=$alpha min={1} max={10} step={0.1} digits={1}>$\alpha$</Slider>
+<Slider value=$beta min={1} max={10} step={0.1} digits={1}>$\beta$</Slider>
+
+<Plot curves={[
+  {f: prior, color: "var(--blue)"},
+  {f: likelihood, color: "var(--red)", dashed: true, rescale: true, hidden: flips.length == 0},
+  {f: posterior, color: "var(--purple)", area: true}
+]} theta={theta} />
+<ul class="legend">
+  <li class="prior">prior</li>
+  <li class="like" class="hidden" if flips.length == 0>likelihood (rescaled)</li>
+  <li class="post">posterior</li>
+</ul>
+
+<p class="payoff">$p(\theta \mid X)$ = <span class="frac"><span class="num"><b class="like">{fmt(likelihood(theta), 4)}</b> <span class="op">×</span> <b class="prior">{fmt(prior(theta), 3)}</b></span><span class="den">{fmt(evidence, 4)}</span></span> = <b class="post">{fmt(posterior(theta), 3)}</b></p>
+
+Notice a few consequences. First, if we use the uniform distribution, we are
+essentially saying that we don't know anything about $\theta$. Consequently,
+we are pulled 100% to likelihood, because there *is* no prior information to
+update. Looking at the math, you can see that $p(\theta) = 1$ in the case of
+uniform, and thus
+
+$$p(\theta \mid X) = \frac{p(X \mid \theta) \cdot 1}{p(X)} = \frac{p(X \mid \theta)}{p(X)}$$
+
+just a scaled version of the likelihood.
+
+Also, notice that the *more* you increase $\alpha$ or $\beta$, we are expressing
+*more* certainty over our prior, and our posterior is pulled closer to the prior.
+Conversely, decreasing $\alpha$ or $\beta$ expresses *less* certainty, and the
+posterior is pulled closer to the likelihood.
+
+<style>
+.heads, .like { color: var(--red); }
+.tails, .prior { color: var(--blue); }
+.post { color: var(--purple); }
+.hidden { display: none; }
+sup { font-size: 1.2rem; }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.6rem; list-style: none; margin: 0.4rem 0 0; padding: 0; font-size: 1.4rem; }
+.legend li::before { content: ""; display: inline-block; width: 1.6rem; height: 0.3rem; margin-right: 0.6rem; vertical-align: 0.35rem; background: currentColor; }
+.payoff { font-size: 2rem; }
+.frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 0.4rem; }
+.frac .num { padding: 0 0.8rem 0.2rem; border-bottom: 1px solid var(--fg); }
+.frac .den { padding: 0.2rem 0.8rem 0; }
+.frac .op { padding: 0 0.4rem; opacity: 0.6; }
+.reset { display: block; margin: 3.2rem auto 0; font-family: inherit; font-size: 1.6rem; }
+@media (max-width: 600px) { .payoff { font-size: 1.7rem; } }
+</style>

@@ -1,0 +1,48 @@
+// The likelihood written out as a product: one factor per flip, theta for a head and 1 - theta for a tail.
+prop flips = []
+prop theta = 0.5
+
+let heads = flips.filter(f => f == "H").length
+let tails = flips.length - heads
+let likelihood = x => x ** heads * (1 - x) ** tails
+
+fn fmt(v, minDecimals) {
+  if !Number.isFinite(v) {
+    return "∞"
+  }
+  if v == 0 {
+    return "0"
+  }
+  if Math.abs(v) >= 0.001 {
+    return v.toFixed(Math.min(7, Math.max(minDecimals, 2 - Math.floor(Math.log10(Math.abs(v))))))
+  }
+  return v.toPrecision(3)
+}
+
+<div class="scroll">
+  <div class="row">
+    if flips.length == 0 {
+      <span class="none">no flips yet</span>
+    }
+    for f, i in flips key i {
+      if i > 0 {
+        <span class="times">×</span>
+      }
+      <div class="col">
+        <div class="coin" class="heads" if f == "H">{f}</div>
+        <div class="coin" class="heads" if f == "H">{(f == "H" ? theta : 1 - theta).toFixed(2)}</div>
+      </div>
+    }
+    $=$ <b>{fmt(likelihood(theta), 4)}</b>
+  </div>
+</div>
+<style>
+.scroll { overflow-x: auto; padding: 0.4rem 0; }
+.row { display: flex; align-items: center; justify-content: safe center; gap: 0.5rem; min-width: min-content; }
+.col { display: flex; flex-direction: column; gap: 0.5rem; }
+.none { display: inline-flex; align-items: center; min-height: 4.8rem; padding: 0 1.6rem; border: 1px dashed var(--hair); font-style: italic; font-size: 1.4rem; opacity: 0.6; }
+.coin { flex: none; display: flex; align-items: center; justify-content: center; width: 4.8rem; height: 4.8rem; margin: 0; padding: 0; border: 1px solid var(--fg); background: transparent; font-family: "Averia Libre", cursive; font-size: 2.2rem; line-height: 1; color: var(--blue); }
+.coin.heads { color: var(--red); }
+.times { flex: none; font-size: 1.4rem; opacity: 0.45; }
+@media (max-width: 600px) { .term { width: 4.8rem; } .symbol { font-size: 1.2rem; } }
+</style>

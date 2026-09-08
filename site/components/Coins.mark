@@ -1,0 +1,38 @@
+// A row of coins ("H" / "T"). Tap one to turn it over; the stepper adds or removes a coin. Bind with `$flips`.
+prop flips = []
+prop onFlipsChange = {}
+prop max = 10
+prop min = 1
+fn turn(i) {
+  flips = flips.map((f, k) => k == i ? (f == "H" ? "T" : "H") : f)
+}
+fn addCoin() {
+  flips = flips.concat(Math.random() >= 0.5 ? "H" : "T")
+}
+<div class="scroll">
+  <div class="row">
+    if flips.length == 0 {
+      <span class="none">no flips yet</span>
+    }
+    for f, i in flips key i {
+      <button class="coin" class="heads" if f == "H" onTap={turn(i)} aria-label={"Flip " + (i + 1)}>{f}</button>
+    }
+  </div>
+</div>
+<div class="stepper">
+  <button onTap={flips = flips.slice(0, -1)} disabled={flips.length <= min} aria-label="Remove a flip">−</button>
+  <span class="count">{flips.length}</span>
+  <button onTap={addCoin()} disabled={flips.length >= max} aria-label="Add a flip">+</button>
+</div>
+<style>
+.scroll { overflow-x: auto; padding: 0.4rem 0; }
+.row { display: flex; align-items: center; justify-content: safe center; gap: 0.5rem; min-width: min-content; }
+.none { display: inline-flex; align-items: center; min-height: 4.8rem; padding: 0 1.6rem; border: 1px dashed var(--hair); font-style: italic; font-size: 1.4rem; opacity: 0.6; }
+.coin { flex: none; width: 4.8rem; height: 4.8rem; margin: 0; padding: 0; border: 1px solid var(--fg); background: transparent; font-family: "Averia Libre", cursive; font-size: 2.2rem; line-height: 1; color: var(--blue); cursor: pointer; }
+.coin.heads { color: var(--red); }
+.coin:hover, .coin:focus-visible { outline: none; box-shadow: inset 0 0 0 1px var(--fg); }
+.stepper { display: flex; align-items: center; justify-content: center; gap: 1.4rem; margin: 1.4rem 0 0.6rem; }
+.stepper button { width: 3.2rem; height: 3.2rem; margin: 0; padding: 0; line-height: 1; font-size: 2rem; font-family: inherit; }
+.count { font-family: Caveat, cursive; font-size: 2.6rem; color: var(--form-fg); min-width: 2.4rem; text-align: center; }
+@media (max-width: 600px) { .row { gap: 0.35rem; } .coin { width: 3.6rem; height: 3.6rem; font-size: 1.8rem; } }
+</style>
